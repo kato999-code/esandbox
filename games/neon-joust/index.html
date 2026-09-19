@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title></title>
+<script>
+  // FINAL NAME (Sir chose NEON JOUST, 2026-09-18): final choice not yet made. To rename the game, change ONLY
+  // the GAME_NAME value on the next line -- it drives the browser-tab title,
+  // the HUD logo, and the start-screen overlay.
+  const GAME_NAME = 'NEON JOUST';
+  document.title = GAME_NAME;
+</script>
+<style>
+  :root { --bg:#07070d; --fg:#cfd2e8; --p1:#5fa8ff; --p2:#ff5f7a; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%; background: var(--bg); color: var(--fg);
+    font-family: 'Courier New', ui-monospace, monospace; overflow: hidden;
+  }
+  #wrap {
+    height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 8px; padding: 10px;
+  }
+  #bar {
+    width: 100%; max-width: 960px; display: flex;
+    justify-content: space-between; align-items: center; gap: 14px; font-size: 12px;
+  }
+  .hp { flex: 1; }
+  .hp .name { font-size: 11px; letter-spacing: 2px; margin-bottom: 4px; opacity: 0.85; }
+  .hp .track {
+    height: 12px; background: #15182a; border: 1px solid #2a2f4a;
+    border-radius: 2px; overflow: hidden; display: flex;
+  }
+  .hp .fill { height: 100%; width: 100%; transition: width 0.12s linear; }
+  .hp.left .fill { background: linear-gradient(90deg, #2a6fd0, var(--p1)); box-shadow: 0 0 10px var(--p1); }
+  .hp.right .fill { background: linear-gradient(270deg, #d02a4a, var(--p2)); box-shadow: 0 0 10px var(--p2); }
+  .hp.right { text-align: right; }
+  .hp.right .track { justify-content: flex-end; }
+  #title { font-size: 13px; letter-spacing: 4px; color: #6a6e88; }
+  #stage { position: relative; line-height: 0; }
+  canvas {
+    display: block; background: #03030a; border: 1px solid #1e2238; border-radius: 4px;
+    box-shadow: 0 0 60px rgba(60,90,200,0.12), inset 0 0 80px rgba(0,0,0,0.6);
+    max-width: 100%; height: auto;
+  }
+  #info {
+    font-size: 11px; color: #6a6e88; text-align: center; line-height: 1.7;
+    max-width: 960px;
+  }
+  #info b { color: #9fa3c0; }
+  kbd {
+    background: #1a1d30; border: 1px solid #2e3350; border-radius: 3px;
+    padding: 1px 5px; font-size: 10px; color: #cfd2e8;
+  }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="bar">
+    <div class="hp left"><div class="name" id="n1">P1</div><div class="track"><div class="fill" id="hp1"></div></div></div>
+    <div id="title"></div>
+    <div class="hp right"><div class="name" id="n2">P2</div><div class="track"><div class="fill" id="hp2"></div></div></div>
+  </div>
+  <div id="stage">
+    <canvas id="game" width="960" height="560"></canvas>
+  </div>
+  <div id="info">
+    <b>P1</b> <kbd>A</kbd>/<kbd>D</kbd> spin &nbsp; <kbd>W</kbd> thrust &nbsp; &nbsp;
+    <b>P2</b> <kbd>&larr;</kbd>/<kbd>&rarr;</kbd> spin &nbsp; <kbd>&uarr;</kbd> thrust &nbsp; &nbsp;
+    <kbd>T</kbd> P2 AI &nbsp; <kbd>G</kbd> demo &nbsp; <kbd>P</kbd> pause &nbsp; <kbd>R</kbd> restart
+  </div>
+</div>
+<script>
+"use strict";
+// ===== two-ball sword duel =====
+// Rule 1: Perpetual energy walls (restitution 1.0, zero friction, no deceleration)
+// Rule 2: Combat-driven momentum injection (damage boosts velocity)
+// Rule 3: Weapon clash -> hit-stop (4-6 frames) -> bounce apart + angular spin inversion
+
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+
+// Show the game name in the HUD logo (GAME_NAME is defined in the <head>).
+document.getElementById('title').textContent = GAME_NAME;
+
+const MAX_SPEED = 12;       // stability cap (does not reduce speed, only limits boost growth)
+const BASE_SPEED = 3.6;
+const ANG_SPEED = 0.075;    // perpetual spin magnitude
+const WEAPON_LEN = 82;
+const BALL_R = 24;
+const DMG = 12;
+const HITSTOP_MIN = 4, HITSTOP_MAX = 6;
+
+const keys = Object.create(null);
+const game = {
+  balls: [], particles: [], shake: 0, flash: 0,
+  hitStop: 0, pendingClash: null, clashCooldown: 0,
+  paused: false, winner: null, started: false, time: 0,
+};
+
+// ---------- audio ----------
+let actx = null;
+function ensureAudio() {
+  if (!actx) {
+    try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { actx = null; }
+  }
+  if (actx && actx.state === 'suspended') actx.resume();
+}
+function beep(freq, dur, type, vol) {
+  if (!actx) return;
+  try {
+    const o = actx.createOscillator();
+    const g = actx.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol || 0.16, actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + dur);
+    o.connect(g); g.connect(actx.destination);
+    o.start(); o.stop(actx.currentTime + dur);
+  } catch (e) {}
+}
+
+// ---------- input ----------
+window.addEventListener('keydown', e => {
+  keys[e.key] = true;
+  if (e.key.length === 1) keys[e.key.toLowerCase()] = true;
+  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
+  ensureAudio();
+  if (!game.started) { game.started = true; return; }
+  const k = e.key.toLowerCase();
+  if (k === 'p') game.paused = !game.paused;
+  else if (k === 'r') reset();
+  else if (k === 't') { game.balls[1].isAI = !game.balls[1].isAI; updateNames(); }
+  else if (k === 'g') { game.balls[0].isAI = !game.balls[0].isAI; game.balls[1].isAI = !game.balls[1].isAI; updateNames(); }
+});
+window.addEventListener('keyup', e => {
+  keys[e.key] = false;
+  if (e.key.length === 1) keys[e.key.toLowerCase()] = false;
+});
+canvas.addEventListener('click', ensureAudio);
+
+// ---------- ball ----------
+class Ball {
+  constructor(x, y, vx, vy, color, name, controls) {
+    this.x = x; this.y = y; this.vx = vx; this.vy = vy;
+    this.r = BALL_R; this.color = color; this.name = name;
+    this.hp = 100; this.maxHp = 100;
+    this.angle = Math.atan2(vy, vx);
+    this.angDir = 1;
+    this.weaponLen = WEAPON_LEN;
+    this.controls = controls;
+    this.hitCooldown = 0;
+    this.boostCooldown = 0;
+    this.isAI = false;
+    this.trail = [];
+  }
+  // hilt point (at ball surface) -- blade base
+  hilt() { return { x: this.x + Math.cos(this.angle) * this.r, y: this.y + Math.sin(this.angle) * this.r }; }
+  tip() { return { x: this.x + Math.cos(this.angle) * this.weaponLen, y: this.y + Math.sin(this.angle) * this.weaponLen }; }
+
+  setInput() {
+    if (this.isAI) { this.ai(); return; }
+    const c = this.controls;
+    if (keys[c.left]) this.angDir = -1;
+    if (keys[c.right]) this.angDir = 1;
+    if (keys[c.boost]) this.boost();
+  }
+
+  ai() {
+    const enemy = game.balls.find(b => b !== this && b.hp > 0);
+    if (!enemy) return;
+    const desired = Math.atan2(enemy.y - this.y, enemy.x - this.x);
+    let diff = desired - this.angle;
+    while (diff > Math.PI) diff -= 2 * Math.PI;
+    while (diff < -Math.PI) diff += 2 * Math.PI;
+    // sweep around the target with a wide margin so the weapon arcs (not a laser)
+    if (diff > 0.8) this.angDir = 1;
+    else if (diff < -0.8) this.angDir = -1;
+    if (Math.random() < 0.004) this.angDir = -this.angDir;
+    if (this.boostCooldown <= 0 && Math.abs(diff) < 0.3 && Math.random() < 0.012) this.boost();
+  }
+
+  boost() {
+    if (this.boostCooldown > 0) return;
+    this.boostCooldown = 42;
+    this.vx += Math.cos(this.angle) * 2.4;
+    this.vy += Math.sin(this.angle) * 2.4;
+    capSpeed(this);
+  }
+
+  update() {
+    // --- Rule 1: perpetual motion, NO deceleration ---
+    this.x += this.vx;
+    this.y += this.vy;
+    // perfectly elastic walls (restitution = 1.0), zero wall friction
+    if (this.x - this.r < 0) { this.x = this.r; this.vx = -this.vx; wallSparks(0, this.y, this.color); }
+    else if (this.x + this.r > W) { this.x = W - this.r; this.vx = -this.vx; wallSparks(W, this.y, this.color); }
+    if (this.y - this.r < 0) { this.y = this.r; this.vy = -this.vy; wallSparks(this.x, 0, this.color); }
+    else if (this.y + this.r > H) { this.y = H - this.r; this.vy = -this.vy; wallSparks(this.x, H, this.color); }
+    // perpetual angular spin
+    this.angle += ANG_SPEED * this.angDir;
+    if (this.hitCooldown > 0) this.hitCooldown--;
+    if (this.boostCooldown > 0) this.boostCooldown--;
+    // weapon trail
+    const t = this.tip();
+    this.trail.push({ x: t.x, y: t.y, life: 14 });
+    if (this.trail.length > 14) this.trail.shift();
+    for (const p of this.trail) p.life--;
+  }
+}
+
+function capSpeed(b) {
+  const s = Math.hypot(b.vx, b.vy);
+  if (s > MAX_SPEED) { b.vx = b.vx / s * MAX_SPEED; b.vy = b.vy / s * MAX_SPEED; }
+}
+
+// ---------- geometry ----------
+function segIntersect(p1, p2, p3, p4) {
+  const x1 = p1.x, y1 = p1.y, x2 = p2.x, y2 = p2.y, x3 = p3.x, y3 = p3.y, x4 = p4.x, y4 = p4.y;
+  const denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+  if (Math.abs(denom) < 1e-9) return null;
+  const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom;
+  const u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / denom;
+  if (t >= 0 && t <= 1 && u >= 0 && u <= 1) return { x: x1 + t * (x2 - x1), y: y1 + t * (y2 - y1) };
+  return null;
+}
+function segCircleHit(p1, p2, c, r) {
+  const dx = p2.x - p1.x, dy = p2.y - p1.y;
+  const len2 = dx * dx + dy * dy || 1e-9;
+  let t = ((c.x - p1.x) * dx + (c.y - p1.y) * dy) / len2;
+  t = Math.max(0, Math.min(1, t));
+  const px = p1.x + t * dx, py = p1.y + t * dy;
+  const ddx = c.x - px, ddy = c.y - py;
+  if (ddx * ddx + ddy * ddy <= r * r) return { px, py };
+  return null;
+}
+
+// ---------- particles ----------
+function spawnSparks(x, y, n, color) {
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const s = 1 + Math.random() * 4;
+    game.particles.push({
+      x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s,
+      life: 18 + Math.random() * 16, max: 34, color: color || '#ffd86b',
+    });
+  }
+}
+function wallSparks(x, y, color) {
+  for (let i = 0; i < 5; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const s = 0.5 + Math.random() * 2.5;
+    game.particles.push({
+      x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s,
+      life: 10 + Math.random() * 10, max: 20, color: color,
+    });
+  }
+}
+function updateParticles() {
+  for (let i = game.particles.length - 1; i >= 0; i--) {
+    const p = game.particles[i];
+    p.x += p.vx; p.y += p.vy;
+    p.vx *= 0.94; p.vy *= 0.94;
+    p.life--;
+    if (p.life <= 0) game.particles.splice(i, 1);
+  }
+}
+
+// ---------- ball-ball elastic collision (restitution 1.0) ----------
+function resolveBallBall() {
+  const [a, b] = game.balls;
+  let dx = b.x - a.x, dy = b.y - a.y;
+  let d = Math.hypot(dx, dy);
+  const minD = a.r + b.r;
+  if (d < minD && d > 0) {
+    const overlap = minD - d;
+    const nx = dx / d, ny = dy / d;
+    a.x -= nx * overlap / 2; a.y -= ny * overlap / 2;
+    b.x += nx * overlap / 2; b.y += ny * overlap / 2;
+    // equal-mass perfectly elastic: swap normal velocity components
+    const va = a.vx * nx + a.vy * ny;
+    const vb = b.vx * nx + b.vy * ny;
+    a.vx += (vb - va) * nx; a.vy += (vb - va) * ny;
+    b.vx += (va - vb) * nx; b.vy += (va - vb) * ny;
+  }
+}
+
+// ---------- Rule 3: weapon clash -> hit-stop + spin inversion ----------
+function checkWeaponClashes() {
+  if (game.clashCooldown > 0) return;
+  const [a, b] = game.balls;
+  const hit = segIntersect(a.hilt(), a.tip(), b.hilt(), b.tip());
+  if (hit) {
+    game.hitStop = HITSTOP_MIN + Math.floor(Math.random() * (HITSTOP_MAX - HITSTOP_MIN + 1));
+    game.pendingClash = { a, b, ix: hit.x, iy: hit.y };
+    game.flash = 6;
+    spawnSparks(hit.x, hit.y, 10, '#fff2a8'); // frozen mid-air during hit-stop
+    beep(240, 0.07, 'square', 0.14);
+  }
+}
+function resolveClash(c) {
+  const { a, b, ix, iy } = c;
+  // linear bounce force pushes the balls apart
+  let nx = b.x - a.x, ny = b.y - a.y;
+  let d = Math.hypot(nx, ny) || 1; nx /= d; ny /= d;
+  const push = 4.2;
+  a.vx -= nx * push; a.vy -= ny * push;
+  b.vx += nx * push; b.vy += ny * push;
+  // rotational torque swap: angular spin velocities instantly inverted
+  a.angDir = -a.angDir;
+  b.angDir = -b.angDir;
+  capSpeed(a); capSpeed(b);
+  spawnSparks(ix, iy, 24, '#9fe8ff');
+  game.shake = 10;
+  game.clashCooldown = 9;
+  beep(130, 0.13, 'sawtooth', 0.18);
+}
+
+// ---------- Rule 2: weapon-ball damage -> momentum injection ----------
+function checkDamage() {
+  for (const a of game.balls) {
+    for (const b of game.balls) {
+      if (a === b || b.hp <= 0) continue;
+      if (b.hitCooldown > 0) continue;
+      const hit = segCircleHit(a.hilt(), a.tip(), { x: b.x, y: b.y }, b.r);
+      if (hit) {
+        b.hp -= DMG;
+        b.hitCooldown = 26;
+        // --- Combat-driven momentum injection ---
+        // positive kinetic multiplier on both combatants' velocity components
+        a.vx *= 1.12; a.vy *= 1.12;            // dealer accelerates
+        b.vx *= 1.06; b.vy *= 1.06;            // receiver accelerates too
+        // impulse vector: knock receiver away, small recoil on dealer
+        let nx = b.x - a.x, ny = b.y - a.y;
+        let d = Math.hypot(nx, ny) || 1; nx /= d; ny /= d;
+        b.vx += nx * 2.8; b.vy += ny * 2.8;
+        a.vx -= nx * 0.6; a.vy -= ny * 0.6;
+        capSpeed(a); capSpeed(b);
+        spawnSparks(hit.px, hit.py, 14, b.color);
+        game.shake = 6;
+        beep(460, 0.06, 'triangle', 0.15);
+        if (b.hp <= 0) { b.hp = 0; game.winner = a; beep(90, 0.5, 'sawtooth', 0.2); }
+        return; // one hit per frame
+      }
+    }
+  }
+}
+
+// ---------- setup ----------
+function updateNames() {
+  document.getElementById('n1').textContent = game.balls[0].isAI ? 'CPU' : 'P1';
+  document.getElementById('n2').textContent = game.balls[1].isAI ? 'CPU' : 'P2';
+}
+function reset() {
+  game.balls = [
+    new Ball(180, H / 2, BASE_SPEED, 0.8, '#5fa8ff', 'P1', { left: 'a', right: 'd', boost: 'w' }),
+    new Ball(W - 180, H / 2, -BASE_SPEED, -0.8, '#ff5f7a', 'P2', { left: 'ArrowLeft', right: 'ArrowRight', boost: 'ArrowUp' }),
+  ];
+  game.balls[0].angle = 0;
+  game.balls[1].angle = Math.PI;
+  game.balls[1].isAI = true; // default: P1 (human) vs CPU
+  game.particles = []; game.shake = 0; game.flash = 0;
+  game.hitStop = 0; game.pendingClash = null; game.clashCooldown = 0;
+  game.winner = null; game.time = 0;
+  updateNames();
+}
+reset();
+
+// ---------- main loop ----------
+function loop() {
+  if (game.started && !game.paused && !game.winner) {
+    if (game.hitStop > 0) {
+      // --- Rule 3: freeze ALL positional updates for the hit-stop window ---
+      game.hitStop--;
+      if (game.hitStop === 0 && game.pendingClash) {
+        resolveClash(game.pendingClash);
+        game.pendingClash = null;
+      }
+    } else {
+      for (const b of game.balls) { b.setInput(); b.update(); }
+      resolveBallBall();
+      checkWeaponClashes();
+      if (game.hitStop === 0) checkDamage();
+      if (game.clashCooldown > 0) game.clashCooldown--;
+      updateParticles();
+    }
+    if (game.shake > 0.3) game.shake *= 0.86; else game.shake = 0;
+    if (game.flash > 0) game.flash--;
+    game.time++;
+  }
+  render();
+  requestAnimationFrame(loop);
+}
+
+// ---------- render ----------
+function render() {
+  ctx.save();
+  if (game.shake > 0.3) ctx.translate((Math.random() - 0.5) * game.shake, (Math.random() - 0.5) * game.shake);
+
+  // background
+  ctx.fillStyle = '#03030a';
+  ctx.fillRect(-30, -30, W + 60, H + 60);
+  // grid
+  ctx.strokeStyle = 'rgba(60,80,140,0.06)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x <= W; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+  for (let y = 0; y <= H; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+  // energy border (perpetual walls)
+  const pulse = 0.35 + 0.15 * Math.sin(game.time * 0.06);
+  ctx.strokeStyle = `rgba(95,168,255,${pulse})`;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(1, 1, W - 2, H - 2);
+  ctx.strokeStyle = `rgba(95,168,255,${pulse * 0.25})`;
+  ctx.lineWidth = 6;
+  ctx.strokeRect(1, 1, W - 2, H - 2);
+
+  // particles
+  for (const p of game.particles) {
+    ctx.globalAlpha = Math.max(0, p.life / p.max);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(p.x - 1.5, p.y - 1.5, 3, 3);
+  }
+  ctx.globalAlpha = 1;
+
+  // balls + weapons
+  for (const b of game.balls) drawBall(b);
+
+  // hit-stop flash + label
+  if (game.flash > 0) {
+    ctx.fillStyle = `rgba(255,255,255,${(game.flash / 6) * 0.16})`;
+    ctx.fillRect(0, 0, W, H);
+  }
+  if (game.hitStop > 0) {
+    ctx.fillStyle = 'rgba(255,230,120,0.9)';
+    ctx.font = 'bold 14px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('— HIT STOP —', W / 2, 28);
+  }
+  ctx.restore();
+
+  // HUD
+  document.getElementById('hp1').style.width = (game.balls[0].hp / game.balls[0].maxHp * 100) + '%';
+  document.getElementById('hp2').style.width = (game.balls[1].hp / game.balls[1].maxHp * 100) + '%';
+
+  if (!game.started) drawOverlay(GAME_NAME, 'press any key to start');
+  else if (game.paused) drawOverlay('PAUSED', 'press P to resume');
+  else if (game.winner) drawOverlay(`${game.winner.name} WINS`, 'press R to restart');
+}
+
+function drawBall(b) {
+  const speed = Math.hypot(b.vx, b.vy);
+  const glow = Math.min(24, 8 + speed);
+
+  // weapon trail
+  ctx.strokeStyle = b.color;
+  ctx.lineCap = 'round';
+  for (let i = 0; i < b.trail.length - 1; i++) {
+    const t = b.trail[i], t2 = b.trail[i + 1];
+    ctx.globalAlpha = (t.life / 14) * 0.4;
+    ctx.lineWidth = 2 + (t.life / 14) * 2;
+    ctx.beginPath(); ctx.moveTo(t.x, t.y); ctx.lineTo(t2.x, t2.y); ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+
+  // weapon blade
+  const hilt = b.hilt(), tip = b.tip();
+  ctx.save();
+  ctx.shadowColor = b.color; ctx.shadowBlur = glow;
+  ctx.strokeStyle = b.color; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(hilt.x, hilt.y); ctx.lineTo(tip.x, tip.y); ctx.stroke();
+  // hilt guard (perpendicular)
+  const gx = -Math.sin(b.angle) * 8, gy = Math.cos(b.angle) * 8;
+  ctx.lineWidth = 6; ctx.shadowBlur = 5;
+  ctx.beginPath(); ctx.moveTo(hilt.x - gx, hilt.y - gy); ctx.lineTo(hilt.x + gx, hilt.y + gy); ctx.stroke();
+  // tip dot
+  ctx.fillStyle = '#ffffff'; ctx.shadowBlur = 8;
+  ctx.beginPath(); ctx.arc(tip.x, tip.y, 3, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+
+  // ball body
+  ctx.save();
+  ctx.shadowColor = b.color; ctx.shadowBlur = glow;
+  ctx.fillStyle = b.color;
+  ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2); ctx.fill();
+  ctx.shadowBlur = 0;
+  // inner core
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.beginPath(); ctx.arc(b.x, b.y, b.r * 0.4, 0, Math.PI * 2); ctx.fill();
+  // facing eye
+  ctx.fillStyle = b.color;
+  ctx.beginPath();
+  ctx.arc(b.x + Math.cos(b.angle) * b.r * 0.55, b.y + Math.sin(b.angle) * b.r * 0.55, b.r * 0.18, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  // HP ring
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.arc(b.x, b.y, b.r + 6, 0, Math.PI * 2); ctx.stroke();
+  ctx.strokeStyle = b.color; ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(b.x, b.y, b.r + 6, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (b.hp / b.maxHp));
+  ctx.stroke();
+
+  // label
+  ctx.fillStyle = 'rgba(255,255,255,0.55)';
+  ctx.font = '10px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${b.name}  hp ${b.hp}  v ${speed.toFixed(1)}`, b.x, b.y - b.r - 14);
+}
+
+function drawOverlay(title, sub) {
+  ctx.fillStyle = 'rgba(0,0,0,0.55)';
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#cfd2e8';
+  ctx.font = 'bold 40px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(title, W / 2, H / 2 - 6);
+  ctx.font = '14px monospace';
+  ctx.fillStyle = '#8a8eaa';
+  ctx.fillText(sub, W / 2, H / 2 + 24);
+}
+
+loop();
+</script>
+<a href="/games/" id="esandbox-back" aria-label="Back to e.sandbox games" style="position:fixed;left:14px;bottom:14px;z-index:2147483647;font:600 11px/1 system-ui,-apple-system,sans-serif;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;color:#fff;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:9px 15px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);opacity:.75">esandbox</a>
+</body>
+</html>

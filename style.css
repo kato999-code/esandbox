@@ -1,0 +1,90 @@
+/* esandbox — shared stylesheet.
+   Neutral placeholder styling so nothing looks broken. Sir redesigns this file.
+   Everything visual should live here so a redesign is one file, not eight pages. */
+
+:root {
+  --bg: #ffffff;
+  --fg: #111111;
+  --muted: #666666;
+  --line: #dddddd;
+  --accent: #111111;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d0d0f;
+    --fg: #f2f2f2;
+    --muted: #9a9a9a;
+    --line: #2a2a2e;
+    --accent: #f2f2f2;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 3rem 1.25rem 4rem;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.65;
+  color: var(--fg);
+  background: var(--bg);
+  -webkit-text-size-adjust: 100%;
+}
+
+.wrap { max-width: 46rem; margin: 0 auto; }
+
+header.site { margin-bottom: 2.5rem; }
+header.site h1 { margin: 0 0 .25rem; font-size: 1.9rem; letter-spacing: -.02em; }
+header.site p { margin: 0 0 1rem; color: var(--muted); }
+
+nav.site a {
+  color: var(--accent);
+  text-decoration: none;
+  margin-right: 1.1rem;
+  font-weight: 600;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
+}
+nav.site a:hover { border-bottom-color: var(--accent); }
+
+h2 { font-size: 1.1rem; margin: 2rem 0 .75rem; }
+
+.card {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1.1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+.card h3 { margin: 0 0 .35rem; font-size: 1.05rem; }
+.card p { margin: 0 0 .8rem; color: var(--muted); font-size: .95rem; }
+
+a.button {
+  display: inline-block;
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 1px;
+}
+a.button:hover { opacity: .7; }
+
+.todo {
+  border-left: 3px solid var(--line);
+  padding: .75rem 0 .75rem 1rem;
+  color: var(--muted);
+  font-size: .95rem;
+}
+
+footer.site {
+  margin-top: 4rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: .88rem;
+}
+footer.site a { color: var(--muted); }
+
+.prose h2 { margin-top: 2.2rem; }
+.prose p, .prose li { color: var(--fg); }
+.prose .updated { color: var(--muted); font-size: .9rem; }
