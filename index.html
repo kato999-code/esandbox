@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>e.sandbox</title>
+<!--
+  STRUCTURE ONLY. Deliberately unstyled - the look is Sir's to design.
+  This file exists to fix the INFORMATION ARCHITECTURE, not the visuals.
+
+  Routes:
+    /                      this hub
+    /games/neon-joust/     Neon Joust
+    /games/chess-poker/    Chess Poker
+    /writing/              papers + blog (later)
+    /about/                about (later)
+
+  Later, when the game API exists, each game card can show live stats
+  (games played, top Elo) pulled from the Worker + D1 backend.
+-->
+<style>
+  /* Minimal, non-design scaffolding so the page is readable without a stylesheet.
+     Replace this entirely. */
+  body { font-family: system-ui, sans-serif; max-width: 46rem; margin: 3rem auto; padding: 0 1.25rem; line-height: 1.6; }
+  .card { border: 1px solid #ccc; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  .card h2 { margin: 0 0 .35rem; }
+  .card p { margin: 0 0 .75rem; }
+  .card a { font-weight: 600; }
+  nav a { margin-right: 1rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>e.sandbox</h1>
+  <p>Ethan Kee — games, papers, and whatever else I build.</p>
+  <nav>
+    <a href="/games/">Games</a>
+    <a href="/writing/">Writing</a>
+    <a href="/about/">About</a>
+  </nav>
+</header>
+
+<main>
+  <h2>Games</h2>
+
+  <section class="card">
+    <h2>Neon Joust</h2>
+    <p>Two orbs, one arena, swords. Digital jousting in a neon box.</p>
+    <a href="/games/neon-joust/">Play</a>
+  </section>
+
+  <section class="card">
+    <h2>Chess Poker</h2>
+    <p>Arrange the pieces, then bet on how many moves the capture takes.</p>
+    <a href="/games/chess-poker/">Play</a>
+  </section>
+</main>
+
+<footer>
+  <p><a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></p>
+</footer>
+
+</body>
+</html>
