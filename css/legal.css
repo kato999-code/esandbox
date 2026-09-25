@@ -1,0 +1,98 @@
+/* ─────────────────────────────────────────────────────────────
+   legal.css — privacy & terms pages.
+
+   Loads on top of base.css (which supplies the reset, the dark
+   shell, and the `.name` case-guard). This file gives the two
+   legal pages the same typographic rhythm as the title card in
+   sections.css, so they read as part of the new site rather
+   than leftovers from the old placeholder style.
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+  --hz-ink: #f3f4f6;
+  --hz-dim: #878c96;
+  --hz-line: rgba(255, 255, 255, .13);
+}
+
+.legal {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: clamp(56px, 11vh, 128px) clamp(24px, 6vw, 56px) 96px;
+  font: 400 15px/1.75 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--hz-ink);
+}
+
+/* header — the same eyebrow / title rhythm as the title card */
+.lg-eyebrow {
+  margin: 0 0 18px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .42em;
+  text-transform: uppercase;
+  color: var(--hz-dim);
+}
+
+.lg-title {
+  margin: 0 0 12px;
+  font-size: clamp(30px, 6.5vw, 58px);
+  font-weight: 600;
+  letter-spacing: -.03em;
+  line-height: 1.02;
+  color: #fff;
+}
+
+.lg-back {
+  margin: 0 0 clamp(30px, 4.5vw, 44px);
+  font-size: 13px;
+}
+.lg-back a { color: var(--hz-dim); text-decoration: none; }
+.lg-back a:hover { color: #fff; }
+
+.lg-updated {
+  margin: 0;
+  font-size: 12px;
+  color: var(--hz-dim);
+}
+
+/* the one piece of ornament, matching .he-lede::before */
+.lg-rule {
+  width: 56px; height: 2px;
+  margin: clamp(20px, 3vw, 28px) 0 clamp(28px, 4vw, 40px);
+  background: #fff;
+  opacity: .8;
+}
+
+.lg-body h2 {
+  margin: 2.3em 0 .6em;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #fff;
+}
+.lg-body h2:first-child { margin-top: 0; }
+
+.lg-body p { margin: 0 0 1.1em; color: #b9bec7; }
+.lg-body p strong { color: var(--hz-ink); font-weight: 600; }
+
+.lg-body ul { margin: 0 0 1.1em; padding-left: 1.4em; list-style: disc; color: #b9bec7; }
+.lg-body ul li { margin: 0 0 .55em; }
+
+.lg-body a { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+.lg-body a:hover { opacity: .75; }
+
+/* footer nav */
+.lg-foot {
+  margin-top: clamp(48px, 7vw, 72px);
+  padding-top: 24px;
+  border-top: 1px solid var(--hz-line);
+  font-size: 12.5px;
+  color: var(--hz-dim);
+}
+.lg-foot a { color: var(--hz-dim); text-decoration: none; }
+.lg-foot a:hover { color: #fff; }
+.lg-foot .sep { margin: 0 .5em; opacity: .5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .legal { font-variant-ligatures: none; }
+}
