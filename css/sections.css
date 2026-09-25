@@ -1,0 +1,1442 @@
+/* ─────────────────────────────────────────────────────────────
+   sections.css
+
+   Five sections, five unrelated visual systems. Each block below
+   is self-contained: its own palette, its own type family, its own
+   surface material. Nothing is shared between them on purpose —
+   no common card, no common radius, no common accent.
+   ───────────────────────────────────────────────────────────── */
+
+
+/* ═══════════════════════════════════════════════════════════════
+   00 · TITLE CARD
+   material: none, on purpose. The five rooms below each have a
+   strong one; the card that introduces them cannot also have one
+   without picking a side. So: a plain dark sheet, one very large
+   wordmark, one paragraph, and the contents ruled into columns.
+
+   This block is STILL. No keyframes, no entrance, no drift — the
+   only motion is hover feedback on the contents, which is a
+   response to the pointer rather than something the page does.
+
+   THE NAME. It is "eSandbox.me" — lowercase e, capital S. Nothing
+   in this block may set text-transform, font-variant-caps or any
+   other case change on `.he-mark`, and `text-transform: none` is
+   written out below so that a later blanket rule cannot take it.
+   ═══════════════════════════════════════════════════════════════ */
+
+.sec-hero {
+  --hz-ink: #f3f4f6;
+  --hz-dim: #878c96;
+  --hz-line: rgba(255, 255, 255, .13);
+  background: #08090b;
+  color: var(--hz-ink);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+/* a wash of light off the top edge, a cold one off the bottom right,
+   and the faintest print dot over both */
+.he-field {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(95% 62% at 50% -14%, rgba(255, 255, 255, .075), transparent 72%),
+    radial-gradient(58% 52% at 90% 112%, rgba(95, 168, 255, .085), transparent 70%),
+    radial-gradient(circle at 1px 1px, rgba(255, 255, 255, .032) 1px, transparent 1.6px);
+  background-size: auto, auto, 5px 5px;
+  pointer-events: none;
+}
+
+.he-inner {
+  position: relative;
+  width: min(1040px, 100%);
+  margin-inline: auto;
+  display: grid;
+  gap: clamp(22px, 3.2vw, 36px);
+}
+
+.he-eyebrow {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .42em;
+  text-transform: uppercase;
+  color: var(--hz-dim);
+}
+
+.he-mark {
+  /* Sized so the name never has to wrap: eleven characters at the lower
+     bound still sit inside a 320px viewport's measure. It must not break
+     mid-word — half a wordmark is a different word. */
+  font-size: clamp(34px, 11vw, 146px);
+  font-weight: 600;
+  letter-spacing: -.045em;
+  line-height: .88;
+  white-space: nowrap;
+  text-transform: none;          /* eSandbox.me — see the note above */
+  font-variant-caps: normal;
+  color: #fff;
+}
+.he-tld { color: var(--hz-dim); font-weight: 300; }
+
+.he-lede {
+  max-width: 62ch;
+  font-size: clamp(15px, 1.75vw, 19px);
+  line-height: 1.72;
+  color: #b9bec7;
+}
+.he-lede::before {
+  /* a short rule instead of an indent — the one bit of ornament here */
+  content: "";
+  display: block;
+  width: 56px; height: 2px;
+  margin-bottom: clamp(18px, 2.4vw, 26px);
+  background: #fff;
+  opacity: .8;
+}
+
+/* the contents, ruled into five columns with hairlines between */
+.he-index {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--hz-line);
+  border-bottom: 1px solid var(--hz-line);
+}
+.he-index li + li { border-left: 1px solid var(--hz-line); }
+
+.he-index a {
+  display: grid;
+  align-content: start;
+  gap: 9px;
+  padding: 20px 16px 22px;
+  text-decoration: none;
+  color: var(--hz-ink);
+  box-shadow: inset 0 2px 0 var(--sw);
+  transition: background-color .18s ease, box-shadow .18s ease;
+}
+.he-index b {
+  font-weight: 400;
+  font-size: 11px;
+  letter-spacing: .18em;
+  color: #7d828c;      /* 5.3:1 on #08090b — it is small, so it has to clear AA */
+  font-variant-numeric: tabular-nums;
+  transition: color .18s ease;
+}
+.he-ix-name {
+  font-size: clamp(14px, 1.4vw, 17px);
+  font-weight: 500;
+  letter-spacing: -.006em;
+  line-height: 1.25;
+}
+.he-ix-state {
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--hz-dim);
+}
+.he-index a:hover,
+.he-index a:focus-visible {
+  background: rgba(255, 255, 255, .055);
+  box-shadow: inset 0 3px 0 var(--sw);
+}
+.he-index a:hover b,
+.he-index a:focus-visible b { color: var(--sw); }
+.he-index a:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
+
+.he-foot {
+  max-width: 56ch;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: #7d828c;
+}
+
+@media (max-width: 900px) {
+  .he-index { grid-template-columns: repeat(2, 1fr); border-bottom: 0; }
+  /* hairlines have to be redrawn per row once the columns wrap */
+  .he-index li { border-bottom: 1px solid var(--hz-line); }
+  .he-index li + li { border-left: 0; }
+  .he-index li:nth-child(even) { border-left: 1px solid var(--hz-line); }
+}
+@media (max-width: 480px) {
+  .he-index { grid-template-columns: 1fr; }
+  .he-index li:nth-child(even) { border-left: 0; }
+  .he-index a { grid-template-columns: auto 1fr auto; align-items: baseline; gap: 14px; padding: 16px 4px; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   01 · NEON JOUST
+   material: vector light in a vacuum. CRT phosphor, monospace,
+   hard glow, nothing has a fill.
+   ═══════════════════════════════════════════════════════════════ */
+
+.sec-joust {
+  --void: #03030a;
+  --p1: #5fa8ff;
+  --p2: #ff5f7a;
+  --dim: #6a6e88;
+  --lit: #cfd2e8;
+  background: var(--void);
+  color: var(--lit);
+  font-family: ui-monospace, "SF Mono", Menlo, "Courier New", monospace;
+}
+.sec-joust::before {
+  content: "";
+  position: absolute; inset: -30% -10% auto -10%; height: 90%;
+  background:
+    radial-gradient(60% 55% at 22% 40%, rgba(95, 168, 255, .16), transparent 70%),
+    radial-gradient(55% 50% at 78% 55%, rgba(255, 95, 122, .13), transparent 70%);
+  filter: blur(10px);
+  pointer-events: none;
+}
+/* scanlines */
+.jo-scan {
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    to bottom, rgba(255,255,255,.028) 0 1px, transparent 1px 3px);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.jo-inner {
+  position: relative;
+  width: min(980px, 100%);
+  margin-inline: auto;
+  display: grid;
+  gap: 34px;
+}
+
+.jo-kicker {
+  font-size: 11px;
+  letter-spacing: .48em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.jo-title {
+  margin-top: 10px;
+  font-size: clamp(42px, 9.5vw, 104px);
+  font-weight: 700;
+  letter-spacing: .07em;
+  line-height: .95;
+  color: #eaf0ff;
+  text-shadow:
+    0 0 1px #fff,
+    -2px 0 0 rgba(95, 168, 255, .85),
+     2px 0 0 rgba(255, 95, 122, .8),
+     0 0 34px rgba(95, 168, 255, .45);
+}
+
+.jo-arena { position: relative; }
+#jo-canvas {
+  width: 100%; height: auto;
+  background: #02020899;
+  border: 1px solid #1e2238;
+  box-shadow:
+    0 0 70px rgba(60, 90, 200, .16),
+    inset 0 0 90px rgba(0, 0, 0, .75);
+}
+.jo-cap {
+  margin-top: 10px;
+  display: flex; align-items: center; gap: 14px;
+  font-size: 10.5px; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--dim);
+}
+.jo-btn {
+  margin-left: auto;
+  background: transparent;
+  border: 1px solid #2e3350;
+  color: var(--lit);
+  padding: 5px 13px;
+  font: inherit; font-size: 10.5px; letter-spacing: .22em; text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color .15s, color .15s, box-shadow .15s;
+}
+.jo-btn:hover { border-color: var(--p1); color: #fff; box-shadow: 0 0 16px rgba(95,168,255,.35); }
+.jo-btn:focus-visible { outline: 2px solid var(--p1); outline-offset: 2px; }
+
+.jo-rules {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 26px;
+  border-top: 1px solid #1a1e33;
+  padding-top: 26px;
+}
+.jo-rules li { display: grid; gap: 9px; }
+.jo-n {
+  font-size: 10px; letter-spacing: .3em; text-transform: uppercase;
+  color: var(--p1);
+}
+.jo-rules p { font-size: 13px; line-height: 1.72; color: #9fa3c0; }
+.jo-rules em { font-style: normal; color: var(--p2); }
+
+.jo-spec { display: flex; flex-wrap: wrap; gap: 0 38px; }
+.jo-spec div { display: flex; align-items: baseline; gap: 9px; }
+.jo-spec dt { font-size: 10px; letter-spacing: .24em; text-transform: uppercase; color: #4e5270; }
+.jo-spec dd { font-size: 15px; color: var(--p1); font-variant-numeric: tabular-nums; }
+
+.jo-keys { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; font-size: 11px; color: var(--dim); }
+.jo-keys b { color: #9fa3c0; margin-left: 14px; font-weight: 400; }
+.jo-keys b:first-child { margin-left: 0; }
+.jo-keys kbd {
+  background: #1a1d30; border: 1px solid #2e3350;
+  padding: 2px 7px; font: inherit; font-size: 10px; color: var(--lit);
+}
+.jo-note { font-size: 11px; color: #4e5270; }
+
+/* ── 01 · the way in ──────────────────────────────────────────
+   Entry belongs inside the section, not off to the side of it.
+   In this section that means the cabinet's coin slot: vector
+   light, hard edges, four corner brackets, nothing filled in.
+   It is an <a>, so it is a real link — middle-click and
+   right-click behave. */
+
+.jo-enter {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 6px 22px;
+  padding: 22px clamp(20px, 3vw, 30px);
+  text-decoration: none;
+  color: var(--lit);
+  background:
+    linear-gradient(100deg, rgba(95, 168, 255, .10), rgba(255, 95, 122, .06) 70%, transparent);
+  border: 1px solid #2e3350;
+  box-shadow: inset 0 0 46px rgba(0, 0, 0, .62), 0 0 0 rgba(95, 168, 255, 0);
+  overflow: hidden;
+  transition: border-color .2s ease, box-shadow .28s ease, background-position .2s ease;
+}
+.jo-enter-kick {
+  grid-column: 1;
+  font-size: 10px; letter-spacing: .44em; text-transform: uppercase;
+  color: var(--p2);
+}
+.jo-enter-label {
+  grid-column: 1;
+  font-size: clamp(21px, 3.5vw, 32px);
+  font-weight: 700;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: #eaf0ff;
+  text-shadow:
+    0 0 1px #fff,
+    -1px 0 0 rgba(95, 168, 255, .75),
+     1px 0 0 rgba(255, 95, 122, .6),
+     0 0 28px rgba(95, 168, 255, .35);
+}
+.jo-enter-arrow {
+  grid-column: 2; grid-row: 1 / span 2;
+  font-size: 30px; line-height: 1;
+  color: var(--p1);
+  transition: transform .24s cubic-bezier(.22, 1, .36, 1);
+}
+
+/* four corner brackets, drawn rather than bordered */
+.jo-enter::before {
+  content: "";
+  position: absolute; inset: 7px;
+  pointer-events: none;
+  --b: linear-gradient(var(--p1), var(--p1));
+  background:
+    var(--b) left  1px top    1px / 1px 15px no-repeat,
+    var(--b) left  1px top    1px / 15px 1px no-repeat,
+    var(--b) right 1px top    1px / 1px 15px no-repeat,
+    var(--b) right 1px top    1px / 15px 1px no-repeat,
+    var(--b) left  1px bottom 1px / 1px 15px no-repeat,
+    var(--b) left  1px bottom 1px / 15px 1px no-repeat,
+    var(--b) right 1px bottom 1px / 1px 15px no-repeat,
+    var(--b) right 1px bottom 1px / 15px 1px no-repeat;
+  opacity: .5;
+  transition: opacity .2s ease, inset .24s cubic-bezier(.22, 1, .36, 1);
+}
+
+.jo-enter:hover,
+.jo-enter:focus-visible {
+  border-color: var(--p1);
+  box-shadow: inset 0 0 46px rgba(0, 0, 0, .5), 0 0 34px rgba(95, 168, 255, .3);
+}
+.jo-enter:hover::before,
+.jo-enter:focus-visible::before { opacity: 1; inset: 4px; }
+.jo-enter:hover .jo-enter-arrow,
+.jo-enter:focus-visible .jo-enter-arrow { transform: translateX(7px); }
+.jo-enter:focus-visible { outline: 2px solid var(--p1); outline-offset: 3px; }
+.jo-enter:active { border-color: #9cc0ff; }
+
+/* the same band that rolls down the tube, run across the slot once
+   as the hand reaches it */
+.jo-enter::after {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background: linear-gradient(100deg, transparent 40%, rgba(150, 190, 255, .16) 50%, transparent 60%);
+  transform: translateX(-130%);
+}
+.jo-enter:hover::after,
+.jo-enter:focus-visible::after { animation: jo-slot-sweep .7s ease; }
+@keyframes jo-slot-sweep {
+  from { transform: translateX(-130%); }
+  to   { transform: translateX(130%); }
+}
+
+/* a coin slot blinks at you; it is the one thing here that asks */
+.jo-enter-kick { animation: jo-coin 2.2s steps(1) infinite; }
+@keyframes jo-coin {
+  0%, 64%  { opacity: 1; }
+  65%, 82% { opacity: .18; }
+  83%      { opacity: 1; }
+}
+
+/* ── 01 · motion ──────────────────────────────────────────────
+   A CRT sign is never still: the raster crawls, a bright band
+   rolls down the tube every few seconds, and the phosphor tears
+   into its two colour channels now and then. Nothing here is on
+   a one-second loop — the point is that you catch it happening
+   rather than watch it happen. */
+
+.jo-scan {
+  background-size: 100% 3px;
+  animation: jo-crawl 2.8s linear infinite;
+}
+@keyframes jo-crawl { to { background-position: 0 3px; } }
+
+/* the band that rolls down a slightly out-of-sync tube */
+.jo-scan::after {
+  content: "";
+  position: absolute; left: 0; right: 0;
+  height: 26%;
+  background: linear-gradient(to bottom, transparent, rgba(150, 190, 255, .05) 50%, transparent);
+  animation: jo-roll 7.5s linear infinite;
+}
+@keyframes jo-roll {
+  from { transform: translateY(-120%); }
+  to   { transform: translateY(520%); }
+}
+
+/* the title's two channels, torn apart for three frames at a time */
+.jo-title { position: relative; display: inline-block; }
+.jo-title::before,
+.jo-title::after {
+  content: attr(data-glitch);
+  position: absolute; inset: 0;
+  background: var(--void);
+  text-shadow: none;
+  clip-path: inset(100% 0 0 0);
+  pointer-events: none;
+}
+.jo-title::before { color: var(--p1); animation: jo-tear-a 7.2s steps(1) infinite; }
+.jo-title::after  { color: var(--p2); animation: jo-tear-b 7.2s steps(1) .14s infinite; }
+
+@keyframes jo-tear-a {
+  0%, 89%, 100% { clip-path: inset(100% 0 0 0); transform: none; }
+  90% { clip-path: inset(14% 0 66% 0); transform: translateX(-5px); }
+  92% { clip-path: inset(58% 0 24% 0); transform: translateX(3px); }
+  94% { clip-path: inset(32% 0 52% 0); transform: translateX(-2px); }
+}
+@keyframes jo-tear-b {
+  0%, 90%, 100% { clip-path: inset(100% 0 0 0); transform: none; }
+  91% { clip-path: inset(46% 0 38% 0); transform: translateX(5px); }
+  93% { clip-path: inset(8% 0 80% 0);  transform: translateX(-3px); }
+  95% { clip-path: inset(70% 0 12% 0); transform: translateX(2px); }
+}
+
+/* Lance clashes inside the canvas light the cabinet around it:
+   joust.js writes --clash (0..1) as the hit flash decays. */
+.jo-arena { --clash: 0; }
+#jo-canvas {
+  box-shadow:
+    0 0 calc(70px + var(--clash) * 80px) rgba(60, 90, 200, calc(.16 + var(--clash) * .3)),
+    inset 0 0 90px rgba(0, 0, 0, .75);
+}
+@supports (border-color: color-mix(in srgb, #000, #fff 50%)) {
+  #jo-canvas { border-color: color-mix(in srgb, #1e2238, #9cc0ff calc(var(--clash) * 70%)); }
+}
+
+.jo-btn { position: relative; overflow: hidden; }
+.jo-btn::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: var(--p1);
+  opacity: 0;
+  transition: opacity .18s ease;
+}
+.jo-btn:active::after { opacity: .22; }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   02 · CHESS POKER
+   material: a card room. Bone paper, gold leaf, felt, pressed
+   chips. Old-style serif, real tabular figures, nothing glows.
+   ═══════════════════════════════════════════════════════════════ */
+
+.sec-cp {
+  --bone: #efe8d8;
+  --ink: #1b1a17;
+  --gold: #a8791f;
+  --felt: #1f4034;
+  --light-sq: #e4dcc8;
+  --dark-sq: #2d4b3f;
+  background:
+    radial-gradient(120% 80% at 50% 0%, #f6f1e4 0%, var(--bone) 55%, #e2d9c4 100%);
+  color: var(--ink);
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+}
+/* paper tooth */
+.sec-cp::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(27,26,23,.055) 1px, transparent 1.4px);
+  background-size: 4px 4px;
+  pointer-events: none;
+}
+
+.cp-inner { position: relative; width: min(1060px, 100%); margin-inline: auto; display: grid; gap: 46px; }
+
+.cp-title {
+  font-size: clamp(40px, 7.5vw, 78px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -.012em;
+}
+.cp-sub {
+  margin-top: 12px;
+  font-size: clamp(15px, 2vw, 19px);
+  font-style: italic;
+  color: #6c6453;
+}
+.cp-head { border-bottom: 2px solid var(--gold); padding-bottom: 22px; }
+
+.cp-stage {
+  display: grid;
+  grid-template-columns: minmax(260px, 420px) minmax(280px, 1fr);
+  gap: clamp(28px, 5vw, 60px);
+  align-items: start;
+}
+.cp-boardwrap {
+  perspective: 1400px;
+  /* The pieces size off the board's own width rather than the viewport's
+     — see .cp-sq. The context sits on the wrapper and not on .cp-board so
+     that the board keeps its untouched `transform-style: preserve-3d`. */
+  container-type: inline-size;
+}
+@media (max-width: 860px) {
+  .cp-stage { grid-template-columns: 1fr; }
+  /* Stacked, the board would otherwise take the full measure and, being
+     square, a screen and a half of height with it. */
+  .cp-boardwrap { width: 100%; max-width: 460px; }
+}
+
+.cp-board {
+  display: grid;
+  /* Both axes have to be stated, and both have to be minmax(0, 1fr).
+     With the rows left implicit they size to their content and then share
+     out what is left over equally, so the four ranks holding pieces came
+     out a whole glyph taller than the four empty ones in the middle —
+     which is exactly the reported bug. A bare `1fr` is minmax(auto, 1fr),
+     whose auto floor lets a large glyph push its own track open again, so
+     the zero floor is written out rather than left to .cp-sq's min-*. */
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  grid-template-rows: repeat(8, minmax(0, 1fr));
+  aspect-ratio: 1;
+  border: 10px solid #3c3327;
+  box-shadow:
+    0 22px 44px rgba(40, 32, 18, .26),
+    inset 0 0 0 1px rgba(0, 0, 0, .35);
+  transform-style: preserve-3d;
+  transition: transform .95s cubic-bezier(.66, 0, .2, 1);
+}
+/* A real 180° turn of the table: the pieces end up facing the other
+   player, which is precisely what "your opponent's view" means. */
+.cp-board.flipped { transform: rotateZ(180deg); }
+.cp-boardwrap.turning { animation: cp-lift .95s cubic-bezier(.66, 0, .2, 1); }
+@keyframes cp-lift {
+  0%   { transform: none; }
+  45%  { transform: translateY(-14px) rotateX(16deg) scale(.965); }
+  100% { transform: none; }
+}
+.cp-sq {
+  display: grid; place-items: center;
+  /* a fixed track can be overflowed by its own content; these let the
+     glyph be clipped by the square rather than push the rank open */
+  min-width: 0; min-height: 0;
+  /* Fallback only. A viewport-relative glyph outgrows its square at the
+     widths where the two-column stage squeezes the board — hence the
+     container-relative size below. */
+  font-size: clamp(14px, 2.6vw, 28px);
+  line-height: 1;
+  user-select: none;
+}
+@supports (container-type: inline-size) {
+  /* A square is (100cqw − 20px of frame) / 8 wide, so 8cqw leaves the
+     glyph at roughly 70% of its own square at every board size the
+     layout can produce — it can no longer outgrow its rank. */
+  .cp-sq { font-size: 8cqw; }
+}
+.cp-sq.lt { background: var(--light-sq); }
+.cp-sq.dk { background: var(--dark-sq); }
+/* Colour follows the SIDE, never the square — each piece carries a hairline in
+   the opposite tone so both sides stay legible on both square colours. */
+.cp-sq .pc.w {
+  color: #f6f0de;
+  text-shadow: 1px 0 0 #221c11, -1px 0 0 #221c11, 0 1px 0 #221c11, 0 -1px 0 #221c11,
+               0 2px 3px rgba(0,0,0,.3);
+}
+.cp-sq .pc.b {
+  color: #15120c;
+  text-shadow: 1px 0 0 rgba(246,240,222,.55), -1px 0 0 rgba(246,240,222,.55),
+               0 1px 0 rgba(246,240,222,.55), 0 -1px 0 rgba(246,240,222,.55);
+}
+.cp-sq.wager { position: relative; }
+.cp-sq.wager::after {
+  content: "";
+  position: absolute;
+  width: 46%; aspect-ratio: 1; border-radius: 50%;
+  background:
+    repeating-conic-gradient(var(--gold) 0 22.5deg, #7d570f 22.5deg 45deg);
+  box-shadow: 0 2px 5px rgba(0,0,0,.45), inset 0 0 0 3px rgba(255,255,255,.28);
+}
+.cp-flip-label {
+  margin-top: 14px;
+  font-size: 11px; letter-spacing: .26em; text-transform: uppercase;
+  color: #8a7f68;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.cp-side { display: grid; gap: 28px; }
+.cp-lede { font-size: clamp(16px, 1.9vw, 20px); line-height: 1.66; max-width: 46ch; }
+.cp-lede b { font-weight: 600; }
+
+.cp-bet {
+  justify-self: start;
+  background: linear-gradient(180deg, #c99a33, #96690f);
+  border: 1px solid #6d4a08;
+  color: #241a05;
+  padding: 13px 26px;
+  border-radius: 2px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #5d3f06, 0 10px 20px rgba(60, 40, 5, .3);
+  transition: transform .1s ease, box-shadow .1s ease;
+}
+.cp-bet:active { transform: translateY(3px); box-shadow: 0 0 0 #5d3f06, 0 5px 12px rgba(60,40,5,.3); }
+.cp-bet:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+.cp-pot {
+  position: relative;
+  background: var(--felt);
+  color: #e7dfc9;
+  padding: 22px 24px 20px;
+  border-radius: 3px;
+  box-shadow: inset 0 0 40px rgba(0,0,0,.4), 0 10px 26px rgba(20,35,28,.3);
+}
+.cp-pot-lab {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: #9db3a6;
+}
+.cp-pot-amt {
+  font-size: 46px; line-height: 1.05; color: #f0c453;
+  font-variant-numeric: tabular-nums;
+}
+.cp-pot-break { font-size: 13px; font-style: italic; color: #93a99c; }
+.cp-tray { display: flex; gap: 4px; margin-top: 14px; min-height: 16px; }
+.cp-chip {
+  width: 15px; height: 15px; border-radius: 50%;
+  background: repeating-conic-gradient(#f0c453 0 30deg, #a8791f 30deg 60deg);
+  box-shadow: 0 1px 2px rgba(0,0,0,.5);
+}
+
+/* ── the money animation's own control ──
+   Small and quiet on purpose: it is a flourish, not the Bet button
+   above it, and nothing it does reaches the game. */
+.cp-raise {
+  margin-top: 18px;
+  display: inline-flex; align-items: center; gap: 10px;
+  background: rgba(240, 196, 83, .07);
+  border: 1px solid rgba(240, 196, 83, .42);
+  border-radius: 2px;
+  color: #f0c453;
+  padding: 9px 15px 9px 11px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 10.5px; font-weight: 600; letter-spacing: .17em; text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color .18s ease, border-color .18s ease, color .18s ease;
+}
+.cp-raise-chip {
+  width: 15px; height: 15px; border-radius: 50%;
+  background: repeating-conic-gradient(#f0c453 0 30deg, #a8791f 30deg 60deg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .5), inset 0 0 0 2px rgba(255, 255, 255, .22);
+  transition: transform .3s cubic-bezier(.22, 1, .36, 1);
+}
+.cp-raise:hover,
+.cp-raise:focus-visible {
+  background: rgba(240, 196, 83, .15);
+  border-color: rgba(240, 196, 83, .8);
+  color: #ffe2a0;
+}
+.cp-raise:hover .cp-raise-chip,
+.cp-raise:focus-visible .cp-raise-chip { transform: rotate(72deg); }
+.cp-raise:focus-visible { outline: 2px solid #f0c453; outline-offset: 3px; }
+.cp-raise:active .cp-raise-chip { transform: rotate(72deg) scale(.86); }
+
+.cp-raise-note {
+  margin-top: 9px;
+  font-size: 12px; font-style: italic;
+  color: #9ab3a5;      /* 5.0:1 on the felt */
+}
+
+.cp-terms { display: grid; gap: 14px; border-top: 1px solid rgba(27,26,23,.18); padding-top: 20px; }
+.cp-terms div { display: grid; grid-template-columns: 108px 1fr; gap: 16px; align-items: baseline; }
+.cp-terms dt {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold);
+}
+.cp-terms dd { font-size: 15px; line-height: 1.55; color: #40392c; }
+@media (max-width: 520px) { .cp-terms div { grid-template-columns: 1fr; gap: 4px; } }
+
+/* ── 02 · the way in ──────────────────────────────────────────
+   The same errand as the coin slot in 01, in this section's own
+   material: a felt plaque edged in gold, set across the foot of
+   the table. Distinct from `.cp-bet` on purpose — that one is a
+   control on the demo above, this one leaves the page. */
+
+.cp-enter {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: clamp(16px, 2.6vw, 26px);
+  padding: 20px clamp(20px, 3vw, 28px);
+  background: linear-gradient(180deg, #24493c, var(--felt));
+  border: 1px solid #14291f;
+  border-radius: 3px;
+  color: #f2ead4;
+  text-decoration: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(168, 121, 31, .55),
+    inset 0 0 44px rgba(0, 0, 0, .38),
+    0 4px 0 #142a21,
+    0 14px 30px rgba(20, 35, 28, .3);
+  transition: transform .12s ease, box-shadow .12s ease, background-color .2s ease;
+}
+.cp-enter-chip {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: repeating-conic-gradient(#f0c453 0 30deg, #a8791f 30deg 60deg);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .5), inset 0 0 0 4px rgba(255, 255, 255, .22);
+  transition: transform .3s cubic-bezier(.22, 1, .36, 1);
+}
+.cp-enter-txt { display: grid; gap: 4px; }
+.cp-enter-label {
+  font-size: clamp(20px, 2.8vw, 27px);
+  line-height: 1.1;
+  color: #f7f0dc;
+}
+.cp-enter-sub {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px; letter-spacing: .17em; text-transform: uppercase;
+  color: #a6bbad;
+}
+.cp-enter-arrow {
+  font-size: 26px; line-height: 1;
+  color: #f0c453;
+  transition: transform .24s cubic-bezier(.22, 1, .36, 1);
+}
+@media (max-width: 520px) {
+  .cp-enter { grid-template-columns: auto 1fr; }
+  .cp-enter-arrow { display: none; }
+}
+
+.cp-enter:hover,
+.cp-enter:focus-visible {
+  box-shadow:
+    inset 0 0 0 1px rgba(240, 196, 83, .9),
+    inset 0 0 44px rgba(0, 0, 0, .3),
+    0 4px 0 #142a21,
+    0 16px 34px rgba(20, 35, 28, .34);
+}
+.cp-enter:hover .cp-enter-chip,
+.cp-enter:focus-visible .cp-enter-chip { transform: rotate(72deg); }
+.cp-enter:hover .cp-enter-arrow,
+.cp-enter:focus-visible .cp-enter-arrow { transform: translateX(6px); }
+.cp-enter:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+/* pressed down onto the table, the way the Bet button is */
+.cp-enter:active {
+  transform: translateY(4px);
+  box-shadow:
+    inset 0 0 0 1px rgba(240, 196, 83, .9),
+    inset 0 0 44px rgba(0, 0, 0, .3),
+    0 0 0 #142a21,
+    0 6px 14px rgba(20, 35, 28, .3);
+}
+
+/* ── 02 · motion ──────────────────────────────────────────────
+   A card room moves in short, physical events: a chip is pressed
+   down onto a square, chips drop into the tray one at a time, the
+   count is told rather than shown. Nothing drifts and nothing
+   loops — the table is still until someone acts on it. */
+
+/* a chip pressed onto a square */
+.cp-sq.wager::after { animation: cp-stake .38s cubic-bezier(.24, 1.4, .4, 1); }
+@keyframes cp-stake {
+  from { transform: translateY(-18px) scale(.4); opacity: 0; }
+  60%  { transform: translateY(0) scale(1.1); opacity: 1; }
+  to   { transform: none; opacity: 1; }
+}
+
+/* chips falling into the tray, each a beat after the last */
+.cp-chip.is-new { animation: cp-chip-in .42s cubic-bezier(.2, 1.3, .4, 1) both; }
+@keyframes cp-chip-in {
+  from { transform: translateY(-16px) rotate(-30deg); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+
+/* the pot takes the new figure with a knock */
+.cp-pot-amt.bump { animation: cp-bump .5s cubic-bezier(.24, 1.3, .4, 1); }
+@keyframes cp-bump {
+  0%   { transform: none; }
+  35%  { transform: scale(1.07); color: #ffe2a0; }
+  100% { transform: none; }
+}
+
+/* gold catches the light as the hand reaches the button */
+.cp-bet { position: relative; overflow: hidden; }
+.cp-bet::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(105deg, transparent 38%, rgba(255, 248, 220, .5) 50%, transparent 62%);
+  transform: translateX(-140%);
+  pointer-events: none;
+}
+.cp-bet:hover::after,
+.cp-bet:focus-visible::after { animation: cp-sheen .62s ease; }
+@keyframes cp-sheen {
+  from { transform: translateX(-140%); }
+  to   { transform: translateX(140%); }
+}
+
+/* The money animation. chesspoker.js drops one of these into the pot per
+   raise; it rises off the figure and is removed when it has gone. */
+.cp-gain {
+  position: absolute;
+  right: 24px; top: 52px;
+  font-size: 21px;
+  color: #f0c453;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 7px rgba(0, 0, 0, .55);
+  pointer-events: none;
+  animation: cp-gain-rise 1s cubic-bezier(.22, 1, .36, 1) both;
+}
+@keyframes cp-gain-rise {
+  0%   { opacity: 0; transform: translateY(16px) scale(.86); }
+  20%  { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-38px) scale(1); }
+}
+
+/* the label changes while the board is face-down mid-turn */
+.cp-boardwrap.turning .cp-flip-label { animation: cp-relabel .95s ease; }
+@keyframes cp-relabel {
+  0%   { opacity: 1; }
+  40%  { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   03 · UPCOMING  (empty on purpose)
+   material: a drafting table. Cold grey, plotted grid, dashed
+   reservations, condensed technical type, measured motion.
+   ═══════════════════════════════════════════════════════════════ */
+
+.sec-up {
+  --slate: #8e99a6;
+  --deep: #333c47;
+  --paper: #c9ced5;
+  background: linear-gradient(175deg, #cfd4da 0%, #b7bec7 100%);
+  color: var(--deep);
+  font-family: "Avenir Next Condensed", "HelveticaNeue-CondensedBold",
+               "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+.up-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(51, 60, 71, .09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(51, 60, 71, .09) 1px, transparent 1px),
+    linear-gradient(rgba(51, 60, 71, .045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(51, 60, 71, .045) 1px, transparent 1px);
+  background-size: 96px 96px, 96px 96px, 16px 16px, 16px 16px;
+  pointer-events: none;
+}
+
+.up-inner { position: relative; width: min(1000px, 100%); margin-inline: auto; display: grid; gap: 40px; }
+
+.up-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.up-title {
+  font-size: clamp(38px, 8vw, 86px);
+  font-weight: 600;
+  letter-spacing: -.02em;
+  line-height: .92;
+  color: #2b333d;
+}
+.up-meta {
+  display: flex; align-items: center; gap: 9px;
+  font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: #6d7783;
+  font-variant-numeric: tabular-nums;
+}
+.up-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #5a6673;
+  animation: up-pulse 2.6s ease-in-out infinite;
+}
+@keyframes up-pulse { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+
+.up-slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 18px;
+}
+.up-slot {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border: 1.5px dashed rgba(51, 60, 71, .34);
+  display: grid;
+  place-items: center;
+  /* the cursor-proximity glow is driven from JS via --near (0..1) */
+  background: rgba(255, 255, 255, calc(.06 + var(--near, 0) * .34));
+  border-color: rgba(51, 60, 71, calc(.28 + var(--near, 0) * .45));
+  transition: background-color .25s ease, border-color .25s ease;
+}
+.up-slot::before,
+.up-slot::after {
+  content: "";
+  position: absolute;
+  background: rgba(51, 60, 71, calc(.2 + var(--near, 0) * .55));
+  transition: background-color .25s ease;
+}
+/* corner registration marks */
+.up-slot::before { left: -1px; top: -1px; width: 14px; height: 1.5px; box-shadow: 0 0 0 0 transparent; }
+.up-slot::after  { left: -1px; top: -1px; width: 1.5px; height: 14px; }
+
+.up-slot span {
+  font-size: 11px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: rgba(51, 60, 71, calc(.3 + var(--near, 0) * .55));
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 03 · motion ──────────────────────────────────────────────
+   A drafting table, so: a plotter. The head tracks the cursor on
+   two rules, the frames lift very slightly as it passes over them
+   and their registration marks extend, and the sheet is ruled once
+   by a pass down the grid when you first arrive. Measured, never
+   bouncy — this section is about restraint. */
+
+.up-slot {
+  transform: translateY(calc(var(--near, 0) * -5px));
+  transition: background-color .25s ease, border-color .25s ease, transform .3s ease;
+}
+.up-slot::before { transition: background-color .25s ease, width .3s ease; }
+.up-slot::after  { transition: background-color .25s ease, height .3s ease; }
+.up-slot::before { width: calc(14px + var(--near, 0) * 30px); }
+.up-slot::after  { height: calc(14px + var(--near, 0) * 30px); }
+
+/* the plotter head */
+.up-cross {
+  position: absolute; inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .4s ease;
+}
+.sec-up.is-live .up-cross { opacity: 1; }
+.up-cross i { position: absolute; background: rgba(51, 60, 71, .2); }
+.up-cross .h {
+  left: 0; right: 0; height: 1px; top: 0;
+  transform: translateY(var(--cy, -10px));
+  transition: transform .13s linear;
+}
+.up-cross .v {
+  top: 0; bottom: 0; width: 1px; left: 0;
+  transform: translateX(var(--cx, -10px));
+  transition: transform .13s linear;
+}
+
+/* one pass down the sheet, the first time the section is reached */
+.up-grid::after {
+  content: "";
+  position: absolute; left: 0; right: 0; top: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(51, 60, 71, .45), transparent);
+  opacity: 0;
+}
+.sec-up.is-in .up-grid::after { animation: up-plot 1.6s cubic-bezier(.4, 0, .25, 1) .1s; }
+@keyframes up-plot {
+  0%   { top: 0;    opacity: 0; }
+  12%  {            opacity: .9; }
+  85%  {            opacity: .9; }
+  100% { top: 100%; opacity: 0; }
+}
+
+.up-note {
+  max-width: 54ch;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 14.5px;
+  line-height: 1.68;
+  color: #4d5866;
+  border-left: 2px solid #7a8593;
+  padding-left: 18px;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   04 · MATH  (empty on purpose — the interaction is the prototype)
+   material: a slate chalkboard. Matte, dusty, no gloss. Symbols
+   are chalk: italic serif, the way variables are actually set.
+   ═══════════════════════════════════════════════════════════════ */
+
+.sec-math {
+  --slate-bg: #1f2b28;
+  --chalk: #eef1ea;
+  --chalk-dim: #93a49c;
+  background:
+    radial-gradient(85% 60% at 30% 25%, #27352f 0%, var(--slate-bg) 60%, #17211f 100%);
+  color: var(--chalk);
+  font-family: "Iowan Old Style", Georgia, "Times New Roman", serif;
+}
+/* chalk dust */
+.sec-math::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 80%, rgba(238,241,234,.05), transparent 45%),
+    radial-gradient(circle at 75% 20%, rgba(238,241,234,.04), transparent 40%);
+  pointer-events: none;
+}
+
+.ma-inner { position: relative; width: min(1040px, 100%); margin-inline: auto; display: grid; gap: 28px; }
+
+.ma-head { display: flex; align-items: baseline; gap: 20px; flex-wrap: wrap; }
+.ma-title {
+  font-size: clamp(38px, 8vw, 84px);
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: -.01em;
+  line-height: 1;
+}
+.ma-soon {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px; letter-spacing: .26em; text-transform: uppercase;
+  color: #1f2b28;
+  background: var(--chalk-dim);
+  padding: 5px 11px;
+  border-radius: 2px;
+}
+.ma-lede {
+  max-width: 62ch;
+  font-size: clamp(15px, 1.9vw, 18.5px);
+  line-height: 1.72;
+  color: #c3d0c9;
+}
+
+.ma-board {
+  position: relative;
+  min-height: min(56vh, 460px);
+  border: 1px solid rgba(238,241,234,.16);
+  border-radius: 2px;
+  box-shadow: inset 0 0 70px rgba(0,0,0,.45);
+  overflow: hidden;
+  touch-action: none;
+}
+
+/* the pieces */
+.ma-sym {
+  position: absolute;
+  top: 0; left: 0;
+  display: grid;
+  place-items: center;
+  min-width: 46px; height: 46px;
+  padding: 0 8px;
+  font-size: 30px;
+  font-style: italic;
+  line-height: 1;
+  color: var(--chalk);
+  text-shadow: 0 0 9px rgba(238,241,234,.28);
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
+  touch-action: none;
+}
+.ma-sym.op { font-style: normal; color: #b6e3c8; text-shadow: 0 0 9px rgba(182,227,200,.3); }
+.ma-sym.num { font-style: normal; font-variant-numeric: tabular-nums; }
+.ma-sym.dragging { cursor: grabbing; text-shadow: 0 0 20px rgba(238,241,234,.6); }
+.ma-sym.welded::after {
+  content: "";
+  position: absolute; inset: -4px -2px;
+  border-top: 1px solid rgba(238,241,234,.32);
+  border-bottom: 1px solid rgba(238,241,234,.32);
+  pointer-events: none;
+}
+.ma-sym.pop { animation: ma-pop .32s cubic-bezier(.3,1.5,.5,1); }
+@keyframes ma-pop { from { scale: .3; opacity: 0; } to { scale: 1; opacity: 1; } }
+
+.ma-tray {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(238,241,234,.22), transparent);
+}
+.ma-read {
+  position: absolute; left: 18px; top: 16px;
+  font-size: clamp(20px, 3vw, 32px);
+  font-style: italic;
+  color: rgba(238,241,234,.5);
+  pointer-events: none;
+  min-height: 1.2em;
+  letter-spacing: .02em;
+}
+.ma-help {
+  position: absolute; left: 18px; bottom: 16px; right: 18px;
+  display: flex; flex-wrap: wrap; gap: 6px 20px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px; color: rgba(238,241,234,.34);
+  pointer-events: none;
+}
+.ma-help b { font-weight: 600; color: rgba(238,241,234,.58); }
+.ma-reset {
+  position: absolute; right: 16px; top: 14px;
+  background: transparent;
+  border: 1px solid rgba(238,241,234,.24);
+  color: rgba(238,241,234,.6);
+  padding: 5px 12px; border-radius: 2px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase;
+  cursor: pointer;
+}
+.ma-reset:hover { color: var(--chalk); border-color: rgba(238,241,234,.55); }
+.ma-reset:focus-visible { outline: 2px solid var(--chalk); outline-offset: 2px; }
+
+/* ── 04 · the way on ──────────────────────────────────────────
+   Chalk, like everything else on this board: a rule drawn under a
+   line of text rather than a control drawn on top of one. Until
+   `data-href` is filled in it is not a link at all, so there is no
+   dead URL to land on — see js/waylink.js. */
+
+.ma-open {
+  justify-self: start;
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  gap: 2px 14px;
+  padding: 13px 20px 14px;
+  border: 1px solid rgba(238, 241, 234, .26);
+  border-radius: 2px;
+  color: var(--chalk);
+  text-decoration: none;
+  transition: border-color .2s ease, background-color .2s ease;
+}
+.ma-open-label {
+  grid-column: 1;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase;
+}
+.ma-open-arrow {
+  grid-column: 2; grid-row: 1 / span 2;
+  font-size: 22px; line-height: 1;
+  color: #b6e3c8;
+  transition: transform .24s cubic-bezier(.22, 1, .36, 1), opacity .2s ease;
+}
+.ma-open-sub {
+  grid-column: 1;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px;
+  color: rgba(238, 241, 234, .55);   /* 4.9:1 on the slate at this size */
+}
+.ma-open:hover, .ma-open:focus-visible {
+  border-color: rgba(238, 241, 234, .6);
+  background: rgba(238, 241, 234, .05);
+}
+.ma-open:hover .ma-open-arrow, .ma-open:focus-visible .ma-open-arrow { transform: translateX(6px); }
+.ma-open:focus-visible { outline: 2px solid var(--chalk); outline-offset: 3px; }
+
+/* nothing behind it yet: present, honest, and not pretending to click */
+.ma-open.is-empty { border-style: dashed; border-color: rgba(238, 241, 234, .18); }
+.ma-open.is-empty .ma-open-label { color: rgba(238, 241, 234, .62); }
+.ma-open.is-empty .ma-open-arrow { opacity: .25; }
+.ma-open.is-empty:hover, .ma-open.is-empty:focus-visible {
+  border-color: rgba(238, 241, 234, .34);
+  background: transparent;
+}
+.ma-open.is-empty:hover .ma-open-arrow, .ma-open.is-empty:focus-visible .ma-open-arrow { transform: none; }
+
+/* ── 04 · motion ──────────────────────────────────────────────
+   The board's motion is physics, and the physics is in math.js —
+   what is here is only what chalk does that a rigid body cannot:
+   arrive dusty and out of focus, flare when two pieces fuse, and
+   draw the bar that holds an expression together.
+
+   All of it uses `scale` and `filter`, never `transform`, because
+   transform is where the simulation writes each symbol's position. */
+
+.ma-sym.chalk-in { animation: ma-chalk .6s cubic-bezier(.22, 1, .36, 1) both; }
+@keyframes ma-chalk {
+  from { opacity: 0; scale: .55; filter: blur(5px); }
+  55%  { opacity: 1; }
+  to   { opacity: 1; scale: 1; filter: blur(0); }
+}
+
+.ma-sym.fused { animation: ma-fuse .46s ease; }
+@keyframes ma-fuse {
+  0%   { text-shadow: 0 0 9px rgba(238, 241, 234, .28); }
+  28%  { text-shadow: 0 0 26px rgba(238, 241, 234, .85), 0 0 5px #fff; }
+  100% { text-shadow: 0 0 9px rgba(238, 241, 234, .28); }
+}
+.ma-sym.fused::after { animation: ma-bar .4s cubic-bezier(.22, 1, .36, 1); }
+@keyframes ma-bar {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+.ma-sym.welded::after { transform-origin: left; }
+
+/* the readout is re-lettered, not swapped */
+.ma-read.changed { animation: ma-read-in .38s ease; }
+@keyframes ma-read-in {
+  from { opacity: .12; letter-spacing: .16em; }
+  to   { opacity: 1;   letter-spacing: .02em; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   05 · WRITING  (empty on purpose)
+   material: letterpress. Warm cream stock, oxblood ink, generous
+   measure, one large old-style serif doing all the work.
+   ═══════════════════════════════════════════════════════════════ */
+
+.sec-wr {
+  --cream: #f4efe4;
+  --oxblood: #8c2f2a;
+  --graphite: #2a2622;
+  background: var(--cream);
+  color: var(--graphite);
+  font-family: "Hoefler Text", Baskerville, "Baskerville Old Face", Georgia, serif;
+  align-items: stretch;
+}
+.sec-wr::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: radial-gradient(100% 70% at 50% 110%, rgba(140, 47, 42, .09), transparent 60%);
+  pointer-events: none;
+}
+
+.wr-inner {
+  position: relative;
+  width: min(760px, 100%);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 52px;
+  padding-block: 40px;
+}
+
+.wr-title {
+  font-size: clamp(56px, 15vw, 152px);
+  font-weight: 400;
+  line-height: .86;
+  letter-spacing: -.035em;
+  color: var(--oxblood);
+}
+
+.wr-sheet { display: grid; gap: 26px; }
+.wr-rule { height: 1px; background: rgba(42, 38, 34, .3); }
+
+.wr-empty {
+  display: flex; align-items: center; gap: 4px;
+  font-size: clamp(22px, 4vw, 34px);
+  line-height: 1.3;
+}
+.wr-caret {
+  display: inline-block;
+  width: .07em; height: 1.05em;
+  background: var(--oxblood);
+  animation: wr-blink 1.15s steps(1) infinite;
+}
+@keyframes wr-blink { 0%, 55% { opacity: 1; } 56%, 100% { opacity: 0; } }
+
+.wr-note {
+  max-width: 58ch;
+  font-size: 17px;
+  line-height: 1.78;
+  color: #554d44;
+}
+
+/* ── 05 · the way on ──────────────────────────────────────────
+   Set, not drawn: oxblood small caps over a rule, the way a
+   "continued on page…" line is set. Same empty-state contract as
+   `.ma-open` — no href until there is an archive to open. */
+
+.wr-open {
+  justify-self: start;
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  gap: 2px 14px;
+  padding: 14px 22px 15px;
+  border: 1px solid rgba(140, 47, 42, .38);
+  background: rgba(140, 47, 42, .04);
+  color: var(--oxblood);
+  text-decoration: none;
+  transition: border-color .22s ease, background-color .22s ease;
+}
+.wr-open-label {
+  grid-column: 1;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase;
+}
+.wr-open-arrow {
+  grid-column: 2; grid-row: 1 / span 2;
+  font-size: 22px; line-height: 1;
+  transition: transform .24s cubic-bezier(.22, 1, .36, 1), opacity .2s ease;
+}
+.wr-open-sub {
+  grid-column: 1;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px;
+  color: #6f665c;      /* 4.9:1 on the cream stock */
+}
+.wr-open:hover, .wr-open:focus-visible {
+  border-color: rgba(140, 47, 42, .8);
+  background: rgba(140, 47, 42, .09);
+}
+.wr-open:hover .wr-open-arrow, .wr-open:focus-visible .wr-open-arrow { transform: translateX(6px); }
+.wr-open:focus-visible { outline: 2px solid var(--graphite); outline-offset: 3px; }
+
+.wr-open.is-empty {
+  border-style: dashed;
+  border-color: rgba(42, 38, 34, .22);
+  background: transparent;
+  color: #8a6260;
+}
+.wr-open.is-empty .wr-open-arrow { opacity: .3; }
+.wr-open.is-empty:hover, .wr-open.is-empty:focus-visible {
+  border-color: rgba(42, 38, 34, .4);
+  background: transparent;
+}
+.wr-open.is-empty:hover .wr-open-arrow, .wr-open.is-empty:focus-visible .wr-open-arrow { transform: none; }
+
+.wr-foot {
+  margin-top: auto;
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 20px; flex-wrap: wrap;
+  border-top: 1px solid rgba(42, 38, 34, .22);
+  padding-top: 20px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 11.5px; letter-spacing: .16em; text-transform: uppercase;
+  color: #7a7066;
+}
+.wr-top { color: var(--oxblood); text-decoration: none; border-bottom: 1px solid currentColor; }
+.wr-top:hover { color: var(--graphite); }
+
+/* ── 05 · motion ──────────────────────────────────────────────
+   Print does not animate, so this section barely does. The caret
+   is the only thing alive on the sheet, and it earns that by
+   waiting until the line has actually been set. */
+
+.wr-caret { animation: none; opacity: 0; }
+.sec-wr.is-typing .wr-caret { opacity: 1; }
+.sec-wr.is-typed .wr-caret { opacity: 1; animation: wr-blink 1.15s steps(1) infinite; }
+
+/* the warmth under the page breathes on a very long cycle */
+.sec-wr::before { animation: wr-warm 16s ease-in-out infinite alternate; }
+@keyframes wr-warm {
+  from { opacity: .7;  transform: translateY(6px); }
+  to   { opacity: 1;   transform: translateY(-14px); }
+}
+
+/* the hairline stays; a heavier rule is drawn under it on approach */
+.wr-top { position: relative; transition: color .25s ease; }
+.wr-top::after {
+  content: "";
+  position: absolute; left: 0; right: 0; bottom: -4px;
+  height: 2px;
+  background: var(--graphite);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform .38s cubic-bezier(.22, 1, .36, 1);
+}
+.wr-top:hover::after,
+.wr-top:focus-visible::after { transform: scaleX(1); transform-origin: left; }
+
+
+/* ───────────────────  the two "way on" buttons  ───────────────────
+   Sections 04 and 05 keep their own look for these — the block above
+   each one says how. The two things here are behaviour rather than
+   look, and duplicating identical keyframes into both blocks would
+   have been worse than saying them once. */
+
+.ma-open.is-empty,
+.wr-open.is-empty { cursor: default; }
+
+/* pressed while there is still nothing behind it: the button declines
+   rather than going nowhere */
+.ma-open.nudge,
+.wr-open.nudge { animation: way-nudge .34s cubic-bezier(.36, .07, .19, .97); }
+@keyframes way-nudge {
+  10%, 90% { transform: translateX(-2px); }
+  30%, 70% { transform: translateX(3px); }
+  50%      { transform: translateX(-3px); }
+  100%     { transform: none; }
+}
+
+
+/* ───────────────────  idling  ───────────────────
+   Four loops run forever by design — the CRT raster, the phosphor tear,
+   the allocation dot, the warmth under the writing page. They are held
+   paused until main.js marks their section .is-near, so sitting on one
+   section costs nothing on the other four.
+
+   This block has to come after every `animation:` shorthand in the file:
+   the shorthand resets animation-play-state, so declaring it earlier
+   would be silently undone. */
+
+.jo-scan, .jo-scan::after,
+.jo-title::before, .jo-title::after,
+.jo-enter-kick,
+.up-dot,
+.sec-wr::before { animation-play-state: paused; }
+
+.sec-joust.is-near .jo-scan,
+.sec-joust.is-near .jo-scan::after,
+.sec-joust.is-near .jo-title::before,
+.sec-joust.is-near .jo-title::after,
+.sec-joust.is-near .jo-enter-kick,
+.sec-up.is-near .up-dot,
+.sec-wr.is-near::before { animation-play-state: running; }
+
+
+/* ───────────────────  scroll-reveal starting states  ───────────────────
+   JS (GSAP) animates these in. If JS never runs, everything below
+   stays visible because the class is added by JS, not authored here. */
+.js-reveal { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .js-reveal { opacity: 1 !important; transform: none !important; }
+
+  /* The blanket rule in base.css kills every keyframe animation; these are
+     the handful of transitions and idle states that need saying outright. */
+  .up-slot, .up-slot::before, .up-slot::after,
+  .up-cross .h, .up-cross .v,
+  .jo-enter, .jo-enter::before, .jo-enter-arrow,
+  .cp-enter, .cp-enter-chip, .cp-enter-arrow,
+  .cp-raise, .cp-raise-chip,
+  .ma-open, .ma-open-arrow, .wr-open, .wr-open-arrow,
+  .he-index a, .he-index b,
+  .wr-top::after { transition-duration: .001ms; }
+  /* chesspoker.js already declines to build the rising figure under
+     reduced motion; this is only for the case where the setting is
+     turned on after load. It must not be display:none — the element
+     removes itself on animationend, and a hidden one never fires. */
+  .cp-gain { opacity: 0; }
+  /* the two entry buttons stay legible without their idle blink */
+  .jo-enter-kick { opacity: 1; }
+  .up-cross { display: none; }
+  .wr-caret { opacity: 1; }
+  .jo-title::before, .jo-title::after { content: none; }
+
+  /* Nothing is gated on .is-near here: with every animation reduced to a
+     single instant tick, a paused one would sit frozen on its first frame. */
+  * { animation-play-state: running !important; }
+}

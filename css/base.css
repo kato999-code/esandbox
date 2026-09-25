@@ -1,0 +1,240 @@
+/* ─────────────────────────────────────────────────────────────
+   base.css — reset, page shell, and the left-edge index rail.
+   Everything with a section-specific look lives in sections.css.
+   ───────────────────────────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: #000; color: #fff; overflow-x: hidden; }
+img, canvas { display: block; max-width: 100%; }
+button { font: inherit; color: inherit; }
+h1, h2, p, ol, ul, dl, dd, figure { margin: 0; padding: 0; }
+ol, ul { list-style: none; }
+
+.skip {
+  position: fixed; top: 8px; left: 8px; z-index: 300;
+  padding: 10px 14px; background: #fff; color: #000;
+  font: 600 13px/1 ui-sans-serif, system-ui, sans-serif;
+  border-radius: 4px; transform: translateY(-200%);
+}
+.skip:focus-visible { transform: none; }
+
+/* The product name is eSandbox.me — lowercase e, capital S — and several
+   blocks on this page are set in uppercase or small caps. Wrap the name in
+   `.name` anywhere it lands inside one of those; this rule is the single
+   place that guarantees the case survives. */
+.name { text-transform: none; font-variant-caps: normal; letter-spacing: .1em; }
+
+/* announced, never drawn */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sec {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  /* room for the rail on wide screens */
+  padding: 96px clamp(24px, 6vw, 88px) 96px clamp(56px, 8vw, 128px);
+}
+
+/* ───────────────────────────  the rail  ─────────────────────────── */
+
+#rail {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 200;
+  display: flex;
+  align-items: stretch;
+  font: 400 14px/1.4 ui-sans-serif, system-ui, -apple-system, sans-serif;
+  pointer-events: none;
+}
+
+/* invisible strip that catches the pointer at the very edge */
+.rail-hit {
+  width: 34px;
+  pointer-events: auto;
+}
+
+/* the always-visible hairline + scroll progress */
+.rail-spine {
+  position: absolute;
+  left: 13px; top: 0; bottom: 0;
+  width: 2px;
+  background: rgba(255, 255, 255, .17);
+  transition: background .35s ease, opacity .35s ease;
+}
+.rail-progress {
+  position: absolute; inset: 0;
+  background: currentColor;
+  color: #fff;
+  transform-origin: top;
+  transform: scaleY(var(--p, 0));
+}
+
+/* Native scroll-driven animation for the progress bar where supported.
+   The JS fallback sets --p; this simply takes over when available. */
+@supports (animation-timeline: scroll()) {
+  .rail-progress {
+    transform: none;
+    animation: rail-fill linear both;
+    animation-timeline: scroll(root block);
+  }
+  @keyframes rail-fill {
+    from { scale: 1 0; }
+    to   { scale: 1 1; }
+  }
+  .rail-progress { transform-origin: top; scale: 1 0; }
+}
+
+/* the panel that slides out */
+.rail-panel {
+  pointer-events: none;
+  width: min(290px, 78vw);
+  margin-left: -34px;
+  padding: 28px 26px 26px 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+  background: rgba(8, 8, 10, .82);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  backdrop-filter: blur(16px) saturate(120%);
+  border-right: 1px solid rgba(255, 255, 255, .12);
+  opacity: 0;
+  transform: translateX(-102%);
+  transition: transform .42s cubic-bezier(.22, 1, .36, 1), opacity .3s ease;
+}
+
+#rail:hover .rail-panel,
+#rail:focus-within .rail-panel,
+#rail.is-open .rail-panel {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+#rail:hover .rail-spine,
+#rail:focus-within .rail-spine,
+#rail.is-open .rail-spine { opacity: 0; }
+
+.rail-title {
+  font-size: 11px;
+  letter-spacing: .32em;
+  /* The name is case-sensitive — eSandbox.me — so it is set as authored.
+     This used to be `text-transform: lowercase`, which silently rendered
+     it "esandbox.me". Do not put a case change back here. */
+  text-transform: none;
+  color: rgba(255, 255, 255, .45);
+}
+
+.rail-list { display: flex; flex-direction: column; gap: 2px; }
+
+.rail-list a {
+  display: grid;
+  grid-template-columns: 10px 26px 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 10px;
+  margin-left: -10px;
+  border-radius: 6px;
+  color: rgba(255, 255, 255, .62);
+  text-decoration: none;
+  transition: color .18s ease, background-color .18s ease;
+}
+.rail-list a:hover,
+.rail-list a:focus-visible { color: #fff; background: rgba(255, 255, 255, .07); }
+.rail-list a:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }
+
+.rail-list i {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--sw);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .5) inset;
+  transition: transform .18s ease;
+}
+.rail-list a:hover i { transform: scale(1.35); }
+
+.rail-list b {
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: rgba(255, 255, 255, .34);
+}
+.rail-list a:hover b { color: rgba(255, 255, 255, .7); }
+
+/* the section you are currently in */
+.rail-list a[aria-current="true"] { color: #fff; }
+.rail-list a[aria-current="true"] b { color: var(--sw); }
+.rail-list a[aria-current="true"] i { transform: scale(1.35); }
+
+.rail-foot {
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, .34);
+  max-width: 22ch;
+}
+
+/* ───────────────────────────  rail motion  ───────────────────────────
+   The rail is the one element shared by all five sections, so it is the
+   one element that carries the page's state: the spine takes the colour
+   of the section you are in, and the index fans open instead of
+   appearing all at once. */
+
+.rail-spine { background: rgba(255, 255, 255, .17); }
+.rail-progress {
+  color: var(--rail-accent, #fff);
+  transition: color .55s ease;
+}
+
+.rail-title,
+.rail-foot { opacity: 0; transition: opacity .28s ease; }
+
+.rail-list li {
+  opacity: 0;
+  transform: translateX(-14px);
+  transition: opacity .22s ease, transform .38s cubic-bezier(.22, 1, .36, 1);
+}
+
+#rail:hover .rail-title,      #rail:focus-within .rail-title,      #rail.is-open .rail-title,
+#rail:hover .rail-foot,       #rail:focus-within .rail-foot,       #rail.is-open .rail-foot {
+  opacity: 1;
+  transition-delay: .12s;
+}
+#rail:hover .rail-list li,
+#rail:focus-within .rail-list li,
+#rail.is-open .rail-list li {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(var(--i, 0) * 38ms);
+}
+
+/* The index is invisible until the pointer finds the edge, so once, on
+   load, it shows an inch of itself and withdraws. */
+.rail-panel.peek { animation: rail-peek 2s cubic-bezier(.22, 1, .36, 1) 1s both; }
+@keyframes rail-peek {
+  0%          { opacity: 0; transform: translateX(-102%); }
+  22%, 48%    { opacity: 1; transform: translateX(-74%); }
+  100%        { opacity: 0; transform: translateX(-102%); }
+}
+
+@media (max-width: 720px) {
+  .rail-hit { width: 26px; }
+  .rail-spine { left: 9px; }
+  .sec { padding-left: 36px; padding-right: 22px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .001ms !important; animation-iteration-count: 1 !important; }
+  .rail-panel { transition-duration: .001ms; }
+  .rail-title,
+  .rail-foot,
+  .rail-list li { transition-duration: .001ms; transition-delay: 0s !important; }
+}

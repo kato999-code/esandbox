@@ -3,43 +3,319 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>e.sandbox</title>
-<meta name="description" content="Ethan Kee — games, papers, and whatever else I build.">
-<link rel="stylesheet" href="/style.css">
+<title>eSandbox.me</title>
+<meta name="description" content="eSandbox.me — a sandbox of games, mathematics and writing, built in the open.">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/sections.css">
 </head>
 <body>
-<div class="wrap">
 
-<header class="site">
-  <h1>e.sandbox</h1>
-  <p>Ethan Kee — games, papers, and whatever else I build.</p>
-  <nav class="site">
-    <a href="/games/">Games</a>
-    <a href="/writing/">Writing</a>
-    <a href="/about/">About</a>
-  </nav>
-</header>
+<a class="skip" href="#joust">Skip to the first section</a>
+
+<!-- ─────────────────────────────  LEFT-EDGE INDEX  ───────────────────────────── -->
+<nav id="rail" aria-label="Section index">
+  <div class="rail-hit" aria-hidden="true"></div>
+  <div class="rail-spine" aria-hidden="true">
+    <div class="rail-progress"></div>
+  </div>
+  <div class="rail-panel">
+    <p class="rail-title">eSandbox.me</p>
+    <ul class="rail-list">
+      <li style="--i:0"><a href="#top"      data-rail="top"><i style="--sw:#f2f3f5"></i><b>00</b> Title card</a></li>
+      <li style="--i:1"><a href="#joust"    data-rail="joust"><i style="--sw:#5fa8ff"></i><b>01</b> Neon Joust</a></li>
+      <li style="--i:2"><a href="#cp"       data-rail="cp"><i style="--sw:#c08a2e"></i><b>02</b> Chess Poker</a></li>
+      <li style="--i:3"><a href="#upcoming" data-rail="upcoming"><i style="--sw:#8b98a8"></i><b>03</b> Upcoming</a></li>
+      <li style="--i:4"><a href="#math"     data-rail="math"><i style="--sw:#eef1ea"></i><b>04</b> Math</a></li>
+      <li style="--i:5"><a href="#writing"  data-rail="writing"><i style="--sw:#8c2f2a"></i><b>05</b> Writing</a></li>
+    </ul>
+    <p class="rail-foot">Jump anywhere. Nothing here needs to be read in order.</p>
+  </div>
+</nav>
 
 <main>
-  <h2>Games</h2>
 
-  <section class="card">
-    <h3>Neon Joust</h3>
-    <p>Two orbs, one arena, swords. Digital jousting in a neon box.</p>
-    <a class="button" href="/games/neon-joust/">Play →</a>
-  </section>
+<!-- ═══════════════════════════  00 · TITLE CARD  ═══════════════════════════
+     The one room with no aesthetic of its own, and the only one that is
+     entirely still: no entrance, no idle loop, no scroll-linked drift. Its
+     whole job is to say what the site is and list what is in it.
 
-  <section class="card">
-    <h3>Chess Poker</h3>
-    <p>Arrange the pieces, then bet on how many moves the capture takes.</p>
-    <a class="button" href="/games/chess-poker/">Play →</a>
-  </section>
+     The name is case-sensitive — eSandbox.me — so nothing here may apply
+     text-transform to it. See css/sections.css, block 00. -->
+<section id="top" class="sec sec-hero" data-sec="top">
+  <div class="he-field" aria-hidden="true"></div>
+  <div class="he-inner">
+
+    <p class="he-eyebrow">games &middot; mathematics &middot; writing</p>
+
+    <h1 class="he-mark">eSandbox<span class="he-tld">.me</span></h1>
+
+    <p class="he-lede">
+      A sandbox is where you build a thing before you are sure it works. This is mine, kept in
+      public: the games I am making, the mathematics I am working through, and the writing.
+      Every one of them gets a room of its own, and none of them pretends to be finished.
+    </p>
+
+    <ul class="he-index">
+      <li style="--sw:#5fa8ff"><a href="#joust" data-jump>
+        <b>01</b><span class="he-ix-name">Neon Joust</span><span class="he-ix-state">playable</span>
+      </a></li>
+      <li style="--sw:#c08a2e"><a href="#cp" data-jump>
+        <b>02</b><span class="he-ix-name">Chess Poker</span><span class="he-ix-state">playable</span>
+      </a></li>
+      <li style="--sw:#8b98a8"><a href="#upcoming" data-jump>
+        <b>03</b><span class="he-ix-name">Upcoming</span><span class="he-ix-state">reserved</span>
+      </a></li>
+      <li style="--sw:#eef1ea"><a href="#math" data-jump>
+        <b>04</b><span class="he-ix-name">Math</span><span class="he-ix-state">coming soon</span>
+      </a></li>
+      <li style="--sw:#8c2f2a"><a href="#writing" data-jump>
+        <b>05</b><span class="he-ix-name">Writing</span><span class="he-ix-state">empty</span>
+      </a></li>
+    </ul>
+
+    <p class="he-foot">
+      One page, five rooms, no order to them. Scroll, pick one above, or push the cursor
+      against the left edge for the index.
+    </p>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════  01 · NEON JOUST  ═══════════════════════════ -->
+<section id="joust" class="sec sec-joust" data-sec="joust">
+  <div class="jo-scan" aria-hidden="true"></div>
+  <div class="jo-inner">
+
+    <header class="jo-head">
+      <p class="jo-kicker">two-ball sword duel</p>
+      <!-- h2, not h1: the page's h1 is the wordmark on the title card above,
+           and the five sections are all one level under it. -->
+      <h2 class="jo-title" data-glitch="NEON JOUST">NEON JOUST</h2>
+    </header>
+
+    <figure class="jo-arena">
+      <canvas id="jo-canvas" width="900" height="480"
+              role="img"
+              aria-label="Live physics preview: two spinning jousters with lances bouncing inside a closed arena."></canvas>
+      <figcaption class="jo-cap">
+        live physics preview &mdash; not the game
+        <button type="button" id="jo-toggle" class="jo-btn" aria-pressed="true">pause</button>
+      </figcaption>
+    </figure>
+
+    <!-- The way in. The canvas above says "not the game"; this is the game.
+         Both game links on this page are site-absolute (/games/<slug>/) so they
+         resolve on esandbox.me. To exercise them locally, serve the parent
+         folder — see README, "Run it". -->
+    <a class="jo-enter" href="/games/neon-joust/" aria-label="Enter the arena — play Neon Joust">
+      <span class="jo-enter-kick">insert coin</span>
+      <span class="jo-enter-label">Enter the arena</span>
+      <span class="jo-enter-arrow" aria-hidden="true">&rarr;</span>
+    </a>
+
+    <ol class="jo-rules">
+      <li>
+        <span class="jo-n">Rule 1</span>
+        <p>Perpetual energy walls. Restitution 1.0, zero friction, no deceleration &mdash; nothing in the arena ever slows down on its own.</p>
+      </li>
+      <li>
+        <span class="jo-n">Rule 2</span>
+        <p>Combat-driven momentum injection. Damage <em>boosts</em> velocity, so a losing fighter is also the fastest one on the field.</p>
+      </li>
+      <li>
+        <span class="jo-n">Rule 3</span>
+        <p>Weapon clash triggers hit-stop for 4&ndash;6 frames, then both bodies bounce apart and their angular spin inverts.</p>
+      </li>
+    </ol>
+
+    <dl class="jo-spec">
+      <div><dt>max speed</dt><dd>12</dd></div>
+      <div><dt>base speed</dt><dd>3.6</dd></div>
+      <div><dt>lance</dt><dd>82px</dd></div>
+      <div><dt>body</dt><dd>r24</dd></div>
+      <div><dt>damage</dt><dd>12</dd></div>
+    </dl>
+
+    <p class="jo-keys">
+      <b>P1</b> <kbd>A</kbd><kbd>D</kbd> spin <kbd>W</kbd> thrust
+      <b>P2</b> <kbd>&larr;</kbd><kbd>&rarr;</kbd> spin <kbd>&uarr;</kbd> thrust
+      <b></b> <kbd>T</kbd> ai <kbd>G</kbd> demo <kbd>P</kbd> pause <kbd>R</kbd> restart
+    </p>
+    <p class="jo-note">Two players, one keyboard.</p>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════  02 · CHESS POKER  ═══════════════════════════ -->
+<section id="cp" class="sec sec-cp" data-sec="cp">
+  <div class="cp-inner">
+
+    <header class="cp-head">
+      <h2 class="cp-title">Chess&nbsp;Poker</h2>
+      <p class="cp-sub">Chess, with a bankroll on the line.</p>
+    </header>
+
+    <div class="cp-stage">
+      <div class="cp-boardwrap">
+        <div class="cp-board" id="cp-board" aria-hidden="true"></div>
+        <p class="cp-flip-label" id="cp-flip-label">your view</p>
+      </div>
+
+      <div class="cp-side">
+        <p class="cp-lede">
+          Move a piece, then choose <b>End&nbsp;Turn</b> or <b>Bet</b>. Betting flips the board to
+          your opponent&rsquo;s view &mdash; predict their next move and wager chips. If your read
+          is correct, you win the wager from their bankroll.
+        </p>
+
+        <button type="button" class="cp-bet" id="cp-bet">Bet &mdash; flip the board</button>
+
+        <div class="cp-pot">
+          <p class="cp-pot-lab">Match Pot</p>
+          <p class="cp-pot-amt" id="cp-pot">$0</p>
+          <p class="cp-pot-break">Ante &middot; plus every failed read</p>
+          <div class="cp-tray" id="cp-tray" aria-hidden="true"></div>
+
+          <!-- The money animation, on its own button. Flipping the board is a
+               change of viewpoint and moves nothing; this is the only thing on
+               the page that makes the figure climb, and it is decoration. -->
+          <button type="button" class="cp-raise" id="cp-raise">
+            <span class="cp-raise-chip" aria-hidden="true"></span>
+            <span>Toss a chip on the pile</span>
+          </button>
+          <p class="cp-raise-note">Animation only &mdash; it doesn&rsquo;t play the hand.</p>
+          <p class="sr-only" id="cp-say" aria-live="polite"></p>
+        </div>
+
+        <dl class="cp-terms">
+          <div><dt>Ante</dt><dd>Proposed and accepted before the first move.</dd></div>
+          <div><dt>Ceiling</dt><dd>A single wager caps at 25% of your bankroll.</dd></div>
+          <div><dt>Failed read</dt><dd>Your wager leaves you and joins the pot.</dd></div>
+        </dl>
+      </div>
+    </div>
+
+    <!-- The way in. Same errand as the arcade cabinet's coin slot above, in
+         this section's own material: an engraved felt plaque, not a neon bar. -->
+    <a class="cp-enter" href="/games/chess-poker/">
+      <span class="cp-enter-chip" aria-hidden="true"></span>
+      <span class="cp-enter-txt">
+        <span class="cp-enter-label">Play Chess Poker</span>
+        <span class="cp-enter-sub">The full game &mdash; board, bankroll and the flip</span>
+      </span>
+      <span class="cp-enter-arrow" aria-hidden="true">&rarr;</span>
+    </a>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════  03 · UPCOMING  ═══════════════════════════ -->
+<section id="upcoming" class="sec sec-up" data-sec="upcoming">
+  <div class="up-grid" aria-hidden="true"></div>
+  <div class="up-inner">
+
+    <header class="up-head">
+      <h2 class="up-title">Upcoming</h2>
+      <p class="up-meta"><span class="up-dot"></span>slots allocated &middot; 0 of 6 filled</p>
+    </header>
+
+    <div class="up-slots" id="up-slots" role="list" aria-label="Empty slots reserved for upcoming games"></div>
+
+    <p class="up-note">
+      Nothing is announced yet. These frames are held open on purpose &mdash; when something is
+      real enough to name, it takes one of them.
+    </p>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════  04 · MATH  ═══════════════════════════ -->
+<section id="math" class="sec sec-math" data-sec="math">
+  <div class="ma-inner">
+
+    <header class="ma-head">
+      <h2 class="ma-title">Math</h2>
+      <p class="ma-soon">coming soon</p>
+    </header>
+
+    <p class="ma-lede">
+      Nothing is written here yet. The board is, though &mdash; so here is the thing the section
+      will be built out of: symbols you can pick up, throw, duplicate, and press together into
+      an expression.
+    </p>
+
+    <div class="ma-board" id="ma-board">
+      <div class="ma-tray" id="ma-tray" aria-hidden="true"></div>
+      <output class="ma-read" id="ma-read" aria-live="polite"></output>
+      <p class="ma-help">
+        <span><b>drag</b> to throw</span>
+        <span><b>alt-drag</b> or <b>double-click</b> to copy</span>
+        <span>rest two together to <b>weld</b></span>
+        <span><b>double-click a weld</b> to break it</span>
+      </p>
+      <button type="button" class="ma-reset" id="ma-reset">reset the board</button>
+    </div>
+
+    <!-- The way on, for the day there is something to go on to. It ships with
+         an empty data-href, so it is not a link and cannot 404; fill that in
+         and js/waylink.js turns it into a real <a href> with its ready label. -->
+    <a class="ma-open is-empty" id="ma-open"
+       data-href="" data-ready-sub="worked through, written up"
+       role="link" aria-disabled="true" tabindex="0">
+      <span class="ma-open-label">Open the notes</span>
+      <span class="ma-open-arrow" aria-hidden="true">&rarr;</span>
+      <span class="ma-open-sub" data-sub>nothing on the board yet</span>
+    </a>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════  05 · WRITING  ═══════════════════════════ -->
+<section id="writing" class="sec sec-wr" data-sec="writing">
+  <div class="wr-inner">
+
+    <header class="wr-head">
+      <h2 class="wr-title">Writing</h2>
+    </header>
+
+    <div class="wr-sheet">
+      <div class="wr-rule" aria-hidden="true"></div>
+      <p class="wr-empty">
+        <span class="wr-count" id="wr-count">No pieces published.</span>
+        <span class="wr-caret" aria-hidden="true"></span>
+      </p>
+      <p class="wr-note">
+        This section is empty and staying empty until there is something worth setting in type.
+        When a piece lands it will appear here, newest first.
+      </p>
+
+      <!-- Same errand as `.ma-open`, in this section's material. Empty
+           data-href until the archive exists — see js/waylink.js. -->
+      <a class="wr-open is-empty" id="wr-open"
+         data-href="" data-ready-sub="every piece, newest first"
+         role="link" aria-disabled="true" tabindex="0">
+        <span class="wr-open-label">Read the archive</span>
+        <span class="wr-open-arrow" aria-hidden="true">&rarr;</span>
+        <span class="wr-open-sub" data-sub>nothing published yet</span>
+      </a>
+    </div>
+
+    <footer class="wr-foot">
+      <!-- `.wr-foot` is set uppercase; the name is not, so it carries its
+           own exemption. eSandbox.me, never ESANDBOX.ME. -->
+      <p><span class="name">eSandbox.me</span> &mdash; local MVP</p>
+      <!-- the top is now the title card, not section 01 -->
+      <a href="#top" class="wr-top" data-jump>back to the top</a>
+    </footer>
+
+  </div>
+</section>
+
 </main>
 
-<footer class="site">
-  <p><a href="/writing/">Writing</a> · <a href="/about/">About</a> · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></p>
-</footer>
-
-</div>
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+<script src="vendor/lenis.min.js"></script>
+<script type="module" src="js/main.js"></script>
 </body>
 </html>
